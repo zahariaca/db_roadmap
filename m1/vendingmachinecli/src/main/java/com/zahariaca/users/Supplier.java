@@ -1,8 +1,11 @@
 package com.zahariaca.users;
 
 import com.zahariaca.utils.UserInputUtils;
+import com.zahariaca.vendingmachine.events.VendingMachineEvent;
+import com.zahariaca.vendingmachine.events.VendingMachineOperations;
 
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
@@ -10,7 +13,7 @@ import java.util.Scanner;
 public class Supplier implements User {
 
     @Override
-    public void promptUserOptions() {
+    public String promptUserOptions(BlockingQueue<VendingMachineEvent<VendingMachineOperations, String>> commandQueue) {
         // offer customer specific option and handle appropriately
         System.out.println("++ handling customer");
 
@@ -30,12 +33,14 @@ public class Supplier implements User {
                                     "   [5] Change name of product. %n",
                                     "   [q/quit] to end process. %n")));
 
-            continueCondition = handleUserInput(scanner.next());
+            continueCondition = handleUserInput(scanner.next(), commandQueue);
         }
+
+        return "";
     }
 
     @Override
-    public boolean handleUserInput(String userInput) {
+    public boolean handleUserInput(String userInput, BlockingQueue<VendingMachineEvent<VendingMachineOperations, String>> commandQueue) {
         if (UserInputUtils.checkQuitCondition(userInput)) {
             return false;
         }

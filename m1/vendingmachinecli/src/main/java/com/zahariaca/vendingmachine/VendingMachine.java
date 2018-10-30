@@ -2,7 +2,6 @@ package com.zahariaca.vendingmachine;
 
 import com.zahariaca.pojo.Product;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
