@@ -1,8 +1,7 @@
 package com.zahariaca.users;
 
-import com.zahariaca.exceptions.UnknownUserException;
+import com.zahariaca.exceptions.UnknownUserTypeException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,19 +11,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class UserFactoryTest {
     @Test
-    public void testCustomerUser() throws UnknownUserException {
+    public void testCustomerUser() throws UnknownUserTypeException {
         User customer = UserFactory.getUser(TypeOfUser.CUSTOMER);
         assertTrue(customer instanceof Customer);
     }
 
     @Test
-    public void testSupplierUser() throws UnknownUserException {
+    public void testSupplierUser() throws UnknownUserTypeException {
         User customer = UserFactory.getUser(TypeOfUser.SUPPLIER);
         assertTrue(customer instanceof Supplier);
     }
 
     @Test
     public void textException() {
-        assertThrows(UnknownUserException.class, () -> UserFactory.getUser(null), "No such user, try again.");
+        assertThrows(UnknownUserTypeException.class, () -> UserFactory.getUser(null), "No such user, try again.");
     }
 }

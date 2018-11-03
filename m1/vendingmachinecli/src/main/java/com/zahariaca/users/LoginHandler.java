@@ -1,11 +1,8 @@
 package com.zahariaca.users;
 
-import com.zahariaca.exceptions.UnknownUserException;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Console;
 import java.util.Scanner;
 
 /**

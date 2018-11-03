@@ -1,23 +1,19 @@
 package com.zahariaca;
 
-import com.zahariaca.exceptions.UnknownUserException;
+import com.zahariaca.dao.Dao;
 import com.zahariaca.loader.FileLoader;
+import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.CLIRunnable;
 import com.zahariaca.threads.VendingMachineRunnable;
-import com.zahariaca.users.LoginHandler;
-import com.zahariaca.users.TypeOfUser;
-import com.zahariaca.users.UserFactory;
-import com.zahariaca.utils.UserInputUtils;
-import com.zahariaca.vendingmachine.VendingMachine;
-import com.zahariaca.vendingmachine.events.VendingMachineEvent;
-import com.zahariaca.vendingmachine.events.VendingMachineOperations;
+import com.zahariaca.vendingmachine.VendingMachineDao;
+import com.zahariaca.threads.events.OperationType;
+import com.zahariaca.threads.events.OperationsEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -26,9 +22,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class Main {
     private static Logger logger = LogManager.getLogger(Main.class);
-    private static BlockingQueue<VendingMachineEvent<VendingMachineOperations, String>> commandQueue = new LinkedBlockingQueue<>(10);
+    private static BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = new LinkedBlockingQueue<>(10);
 
     public static void main(String[] args) {
+        logger.log(Level.INFO, ">O: Application startup...");
         System.out.println(String.format("%s%n%s%n%s",
                 "+++++++++++++++++++++++++++++",
                 "+    VENDING MACHINE CLI    +",
@@ -43,11 +40,14 @@ public class Main {
             file = new File(fileUrl.getFile());
         }
 
-        VendingMachine vendingMachine = new VendingMachine(FileLoader.INSTANCE.loadFromFile(file));
+        //TODO: Handle what happenes if there is no file or no products in file.
+        Dao<Product, String> vendingMachine = new VendingMachineDao(FileLoader.INSTANCE.loadFromFile(file));
 
+        logger.log(Level.INFO, ">O: Prerequisites created...");
         new Thread(new VendingMachineRunnable(commandQueue, vendingMachine)).start();
-
+        logger.log(Level.INFO, ">O: VendingMachine thread started.");
         new Thread(new CLIRunnable(commandQueue)).start();
+        logger.log(Level.INFO, ">O: CLI thread started.");
     }
 
 

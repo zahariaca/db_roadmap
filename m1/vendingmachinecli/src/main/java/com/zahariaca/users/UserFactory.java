@@ -1,6 +1,6 @@
 package com.zahariaca.users;
 
-import com.zahariaca.exceptions.UnknownUserException;
+import com.zahariaca.exceptions.UnknownUserTypeException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 public class UserFactory {
     private static Logger logger = LogManager.getLogger(UserFactory.class);
 
-    public static User getUser(TypeOfUser typeOfUser) throws UnknownUserException {
+    public static User getUser(TypeOfUser typeOfUser) throws UnknownUserTypeException {
         if (TypeOfUser.CUSTOMER.equals(typeOfUser)) {
             logger.log(Level.INFO, "Current user is of type: {}", typeOfUser.getType());
             return new Customer();
@@ -20,7 +20,7 @@ public class UserFactory {
             return new Supplier();
         }
 
-        throw new UnknownUserException("No such user, try again.");
+        throw new UnknownUserTypeException("No such user type, try again.");
     }
 
 }

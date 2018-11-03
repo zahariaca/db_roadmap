@@ -1,8 +1,8 @@
 package com.zahariaca.users;
 
 import com.zahariaca.utils.UserInputUtils;
-import com.zahariaca.vendingmachine.events.VendingMachineEvent;
-import com.zahariaca.vendingmachine.events.VendingMachineOperations;
+import com.zahariaca.threads.events.OperationType;
+import com.zahariaca.threads.events.OperationsEvent;
 
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
@@ -10,10 +10,16 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class Supplier implements User {
+public class Supplier implements User<BlockingQueue<OperationsEvent<OperationType, String>>> {
+    private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue;
 
     @Override
-    public String promptUserOptions(BlockingQueue<VendingMachineEvent<VendingMachineOperations, String>> commandQueue) {
+    public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String>> commandQueue) {
+        this.commandQueue = commandQueue;
+    }
+
+    @Override
+    public String promptUserOptions() {
         // offer customer specific option and handle appropriately
         System.out.println("++ handling customer");
 
@@ -33,14 +39,14 @@ public class Supplier implements User {
                                     "   [5] Change name of product. %n",
                                     "   [q/quit] to end process. %n")));
 
-            continueCondition = handleUserInput(scanner.next(), commandQueue);
+            continueCondition = handleUserInput(scanner.next());
         }
 
         return "";
     }
 
     @Override
-    public boolean handleUserInput(String userInput, BlockingQueue<VendingMachineEvent<VendingMachineOperations, String>> commandQueue) {
+    public boolean handleUserInput(String userInput) {
         if (UserInputUtils.checkQuitCondition(userInput)) {
             return false;
         }
