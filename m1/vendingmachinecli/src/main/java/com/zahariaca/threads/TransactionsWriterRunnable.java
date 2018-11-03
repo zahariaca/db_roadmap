@@ -8,8 +8,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,12 +18,12 @@ import java.nio.file.StandardOpenOption;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 03.11.2018
  */
-public class TransactionsWritterRunnable implements Runnable {
-    private final Logger logger = LogManager.getLogger(TransactionsWritterRunnable.class);
+//TODO: make it thread safe
+public class TransactionsWriterRunnable implements Runnable {
+    private final Logger logger = LogManager.getLogger(TransactionsWriterRunnable.class);
     private final Product transactionProduct;
-    private boolean exitCondition = true;
 
-    public TransactionsWritterRunnable(Product transactionProduct) {
+    TransactionsWriterRunnable(Product transactionProduct) {
         this.transactionProduct = transactionProduct;
     }
 
@@ -34,7 +34,6 @@ public class TransactionsWritterRunnable implements Runnable {
     }
 
     private void registerTransaction() {
-        //TODO: write transaction to transactions file
         ProductTransaction productTransaction = new ProductTransaction(transactionProduct.getUniqueId(), transactionProduct.getPrice());
 
         File file = new File("persistence/transactions.json");

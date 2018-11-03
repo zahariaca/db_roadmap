@@ -2,7 +2,6 @@ package com.zahariaca.threads;
 
 import com.zahariaca.dao.Dao;
 import com.zahariaca.pojo.Product;
-import com.zahariaca.pojo.ProductTransaction;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import org.apache.logging.log4j.Level;
@@ -43,7 +42,7 @@ public class VendingMachineRunnable implements Runnable {
                     if (product.isPresent()) {
                         System.out.println("Delivering your product: " + product.get());
 //                        resultQueue.put(product.get());
-                        new Thread(new TransactionsWritterRunnable(product.get())).start();
+                        new Thread(new TransactionsWriterRunnable(product.get())).start();
                         //TODO: Use some mechanism to get the result back to CLI Thread.1
                     } else {
                         System.out.println("No such product. Please try again!");
