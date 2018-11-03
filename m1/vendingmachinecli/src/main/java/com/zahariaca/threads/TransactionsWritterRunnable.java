@@ -39,12 +39,16 @@ public class TransactionsWritterRunnable implements Runnable {
 
         File file = new File("persistence/transactions.json");
 
+        boolean firstWrite = false;
+
         try {
-            if (file.createNewFile()) {
-                logger.log(Level.INFO, "File: {} does not exist. Creating.", file.getName());
-            }
+            firstWrite = file.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (firstWrite) {
+            logger.log(Level.INFO, "File: {} does not exist. Creating.", file.getName());
         }
 
         GsonBuilder builder = new GsonBuilder();
@@ -53,8 +57,8 @@ public class TransactionsWritterRunnable implements Runnable {
 
         Path path = Paths.get(file.toURI());
         try {
-            Files.write(path, System.lineSeparator().getBytes(), StandardOpenOption.APPEND);
-            Files.write(path, transactionString.getBytes(), StandardOpenOption.APPEND);
+            String transactionLine = transactionString + System.lineSeparator();
+            Files.write(path, transactionLine.getBytes(), StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();
         }
