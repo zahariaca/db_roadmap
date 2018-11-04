@@ -32,10 +32,11 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     @Override
-    public String promptUserOptions() {
+    public void promptUserOptions() {
         // offer customer specific option and handle appropriately
-        System.out.println("++ handling customer");
-        logger.log(Level.DEBUG, "Handling customer");
+        logger.log(Level.DEBUG, ">O: Handling customer");
+
+        checkQueues();
 
         boolean continueCondition = true;
         Scanner scanner = new Scanner(System.in);
@@ -48,33 +49,33 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
                                     "   [1] See product list. %n",
                                     "   [2] Buy product. %n",
                                     "   [q/quit] to end process. %n")));
-            if (commandQueue != null && resultQueue != null) {
 
-                String userInput = scanner.next();
-                if (!UserInputUtils.INSTANCE.checkIsNumericCharacter(userInput)) {
-                    System.out.println("Incorrect input. Try again.");
-                    continue;
-                }
-
-                continueCondition = handleUserInput(userInput);
-                logger.log(Level.INFO, "Handling user input.");
-            } else {
+            String userInput = scanner.next();
+            if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
                 continueCondition = false;
-                logger.log(Level.ERROR, "COMMAND QUEUE / RESULT QUEUE IS NULL. Something very bad has happened...cannot operate");
-                System.exit(-1);
+                continue;
             }
-        }
 
-        return "";
+            if (!UserInputUtils.INSTANCE.checkIsNumericCharacter(userInput)) {
+                System.out.println("Incorrect input. Try again.");
+                continue;
+            }
+
+            continueCondition = handleUserInput(userInput);
+            logger.log(Level.INFO, "Handling user input.");
+        }
+    }
+
+    private void checkQueues() {
+        if (commandQueue == null || resultQueue == null) {
+            logger.log(Level.ERROR, "COMMAND QUEUE / RESULT QUEUE IS NULL. Something very bad has happened...cannot operate");
+            System.exit(-1);
+        }
     }
 
 
     @Override
     public boolean handleUserInput(String userInput) {
-        if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
-            return false;
-        }
-
         try {
             if (Integer.valueOf(userInput) == 1) {
                 sendDisplayEvent();
@@ -82,7 +83,6 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
                 handleBuyOption();
             }
         } catch (InterruptedException ie) {
-            ie.printStackTrace();
             logger.log(Level.ERROR, ie.getMessage());
             Thread.currentThread().interrupt();
         }
