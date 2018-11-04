@@ -1,5 +1,7 @@
 package com.zahariaca.users;
 
+import com.zahariaca.pojo.Product;
+import com.zahariaca.threads.events.ResultOperationType;
 import com.zahariaca.utils.UserInputUtils;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
@@ -10,14 +12,20 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class Supplier implements User<BlockingQueue<OperationsEvent<OperationType, String>>> {
-    private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue;
+public class Supplier implements User<BlockingQueue<OperationsEvent<OperationType, String>>, BlockingQueue<OperationsEvent<ResultOperationType, Product>>> {
+
+    private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = null;
+    private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue = null;
 
     @Override
     public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String>> commandQueue) {
         this.commandQueue = commandQueue;
     }
 
+    @Override
+    public void setResultQueue(BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue) {
+        this.resultQueue = resultQueue;
+    }
     @Override
     public String promptUserOptions() {
         // offer customer specific option and handle appropriately
@@ -30,7 +38,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
             // TODO show only products related to this supplier, not all (m1 or m2)
             System.out.println(
                     String.format(
-                            UserInputUtils.constructPromptMessage(
+                            UserInputUtils.INSTANCE.constructPromptMessage(
                                     "%nSelect an operation:%n",
                                     "   [1] See product list. %n",
                                     "   [2] Add product. %n",
@@ -47,7 +55,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
 
     @Override
     public boolean handleUserInput(String userInput) {
-        if (UserInputUtils.checkQuitCondition(userInput)) {
+        if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
             return false;
         }
 

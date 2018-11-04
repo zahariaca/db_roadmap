@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zahariaca.Main;
 import com.zahariaca.dao.Dao;
+import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.pojo.ProductTransaction;
 
@@ -42,9 +43,12 @@ public class VendingMachineDao implements Dao<Product, String > {
 
     }
 
-    public Product buyProduct(String productName) {
+    public Product buyProduct(String productName) throws NoSuchProductException {
         Optional<Product> product = products.stream().filter(p -> p.getName().equalsIgnoreCase(productName)).findAny();
-        return product.orElse(null);
+        if (product.isPresent()) {
+            return product.get();
+        }
+        throw new NoSuchProductException("Product: " + productName + " does not exist.");
     }
 
 

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.pojo.ProductTransaction;
+import com.zahariaca.utils.FileUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,26 +30,13 @@ public class TransactionsWriterRunnable implements Runnable {
 
     @Override
     public void run() {
-
         registerTransaction();
     }
 
     private void registerTransaction() {
         ProductTransaction productTransaction = new ProductTransaction(transactionProduct.getUniqueId(), transactionProduct.getPrice());
 
-        File file = new File("persistence/transactions.json");
-
-        boolean firstWrite = false;
-
-        try {
-            firstWrite = file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (firstWrite) {
-            logger.log(Level.INFO, "File: {} does not exist. Creating.", file.getName());
-        }
+        File file = FileUtils.INSTANCE.getFile("persistence/transactions.json");
 
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();

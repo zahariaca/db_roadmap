@@ -5,6 +5,8 @@ import com.zahariaca.loader.FileLoader;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.CLIRunnable;
 import com.zahariaca.threads.VendingMachineRunnable;
+import com.zahariaca.threads.events.ResultOperationType;
+import com.zahariaca.utils.FileUtils;
 import com.zahariaca.vendingmachine.VendingMachineDao;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
@@ -13,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.net.URL;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Main {
     private static Logger logger = LogManager.getLogger(Main.class);
     private static BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = new LinkedBlockingQueue<>(10);
+    private static BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue = new LinkedBlockingQueue<>(1);
 
     public static void main(String[] args) {
         logger.log(Level.INFO, ">O: Application startup...");
@@ -33,20 +35,13 @@ public class Main {
 
         System.out.println("Starting up...");
 
-        ClassLoader classLoader = Main.class.getClassLoader();
-        URL fileUrl = classLoader.getResource("products.json");
-        File file = null;
-        if (fileUrl != null) {
-            file = new File(fileUrl.getFile());
-        }
-
-        //TODO: Handle what happenes if there is no file or no products in file.
+        File file = FileUtils.INSTANCE.getFile("persistence/products.json");
         Dao<Product, String> vendingMachine = new VendingMachineDao(FileLoader.INSTANCE.loadFromFile(file));
 
         logger.log(Level.INFO, ">O: Prerequisites created...");
-        new Thread(new VendingMachineRunnable(commandQueue, vendingMachine)).start();
+        new Thread(new VendingMachineRunnable(commandQueue, resultQueue, vendingMachine)).start();
         logger.log(Level.INFO, ">O: VendingMachine thread started.");
-        new Thread(new CLIRunnable(commandQueue)).start();
+        new Thread(new CLIRunnable(commandQueue, resultQueue)).start();
         logger.log(Level.INFO, ">O: CLI thread started.");
     }
 
