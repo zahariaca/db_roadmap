@@ -15,7 +15,7 @@ public class Product {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.uniqueId = DigestUtils.sha256Hex(name+description+price);
+        this.uniqueId = DigestUtils.sha256Hex(name + description + price);
     }
 
     public String getName() {

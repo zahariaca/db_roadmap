@@ -2,14 +2,14 @@ package com.zahariaca.threads;
 
 import com.zahariaca.exceptions.UnknownUserTypeException;
 import com.zahariaca.pojo.Product;
+import com.zahariaca.threads.events.OperationType;
+import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
 import com.zahariaca.users.LoginHandler;
 import com.zahariaca.users.TypeOfUser;
 import com.zahariaca.users.User;
 import com.zahariaca.users.UserFactory;
 import com.zahariaca.utils.UserInputUtils;
-import com.zahariaca.threads.events.OperationType;
-import com.zahariaca.threads.events.OperationsEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +24,7 @@ public class CLIRunnable implements Runnable {
     private final Logger logger = LogManager.getLogger(CLIRunnable.class);
     private final BlockingQueue<OperationsEvent<OperationType, String>> commandQueue;
     private final BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue;
+    private volatile boolean continueCondition = true;
 
     public CLIRunnable(BlockingQueue<OperationsEvent<OperationType, String>> commandQueue, BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue) {
         this.commandQueue = commandQueue;
@@ -38,7 +39,6 @@ public class CLIRunnable implements Runnable {
     }
 
     private void promptForUserIdentification() {
-        boolean continueCondition = true;
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -54,11 +54,16 @@ public class CLIRunnable implements Runnable {
 
                 String userInput = scanner.next();
 
-                if(!UserInputUtils.INSTANCE.checkIsNumericCharacter(userInput)) {
+                if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
+                    handleShutdown();
+                }
+
+                if (!UserInputUtils.INSTANCE.checkIsNumericCharacter(userInput)) {
                     System.out.println("Incorrect input. Try again.");
                     continue;
                 }
-                continueCondition = handleUserInput(userInput);
+
+                handleUserInput(userInput);
             }
             logger.log(Level.DEBUG, ">O: infinite loop exit.");
         } catch (InterruptedException e) {
@@ -67,23 +72,23 @@ public class CLIRunnable implements Runnable {
         }
     }
 
-    private boolean handleUserInput(String userInput) throws InterruptedException {
-        if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
-            commandQueue.put(new OperationsEvent<OperationType, String>() {
-                @Override
-                public OperationType getType() {
-                    return OperationType.QUIT;
-                }
+    private void handleShutdown() throws InterruptedException {
+        commandQueue.put(new OperationsEvent<OperationType, String>() {
+            @Override
+            public OperationType getType() {
+                return OperationType.QUIT;
+            }
 
-                @Override
-                public String getPayload() {
-                    return "";
-                }
-            });
-            logger.log(Level.INFO, ">O: quit command caught. Initiating application shutdown");
-            return false;
-        }
+            @Override
+            public String getPayload() {
+                return "";
+            }
+        });
+        logger.log(Level.INFO, ">O: quit command caught. Initiating application shutdown");
+        continueCondition = false;
+    }
 
+    private void handleUserInput(String userInput) throws InterruptedException {
         try {
             if (Integer.valueOf(userInput) == 1) {
                 // no login required for customers, just handle input from them
@@ -91,7 +96,6 @@ public class CLIRunnable implements Runnable {
                 user.setCommandQueue(commandQueue);
                 user.setResultQueue(resultQueue);
                 user.promptUserOptions();
-                return true;
             }
 
             if (Integer.valueOf(userInput) == 2 && LoginHandler.INSTANCE.checkUserCredentials(TypeOfUser.SUPPLIER)) {
@@ -107,7 +111,5 @@ public class CLIRunnable implements Runnable {
         } catch (UnknownUserTypeException e) {
             logger.log(Level.ERROR, ">O: {}", e.getMessage());
         }
-
-        return true;
     }
 }

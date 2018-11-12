@@ -10,9 +10,9 @@ public interface Dao<T, K> {
 
     void displayProducts();
 
-    void deleteProduct(T product);
+    void deleteProduct(K productName, K uniqueId) throws NoSuchProductException;
 
-    void changeProduct(T product, K uniqueId);
+    void changeProduct(K productName, K productDescription, K productPrice, K uniqueId);
 
     T buyProduct(K productName) throws NoSuchProductException;
 }

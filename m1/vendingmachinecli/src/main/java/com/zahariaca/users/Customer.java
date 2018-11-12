@@ -91,35 +91,14 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private void sendDisplayEvent() throws InterruptedException {
-        commandQueue.put(new OperationsEvent<OperationType, String>() {
-            @Override
-            public OperationType getType() {
-                return OperationType.DISPLAY;
-            }
-
-            @Override
-            public String getPayload() {
-                return "DISPLAY!";
-            }
-        });
+        addEventToResultQueue("", OperationType.DISPLAY);
         System.out.println(Thread.currentThread() + " ++ Display products");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
     }
 
     private void handleBuyOption() throws InterruptedException {
         String userOrder = promptForOrder();
-        //TODO: handle buy process
-        commandQueue.put(new OperationsEvent<OperationType, String>() {
-            @Override
-            public OperationType getType() {
-                return OperationType.BUY;
-            }
-
-            @Override
-            public String getPayload() {
-                return userOrder;
-            }
-        });
+        addEventToResultQueue(userOrder, OperationType.BUY);
         System.out.println(Thread.currentThread() + " ++ Buy product");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.BUY);
 
@@ -140,5 +119,19 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
         } else if (returnedResult.getType().equals(ResultOperationType.PRODUCT_NOT_FOUND)) {
             System.out.println("The product you chose does not exist. Please try again.");
         }
+    }
+
+    private void addEventToResultQueue(String userOrder, OperationType commandOperation) throws InterruptedException {
+        commandQueue.put(new OperationsEvent<OperationType, String>() {
+            @Override
+            public OperationType getType() {
+                return commandOperation;
+            }
+
+            @Override
+            public String getPayload() {
+                return userOrder;
+            }
+        });
     }
 }

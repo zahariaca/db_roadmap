@@ -47,6 +47,7 @@ public class ProductTest {
         assertFalse(productOne.getUniqueId().equals(productTwo.getUniqueId()));
     }
 
+    //TODO: REMOVE THIS TESTING AREA
     @Test
     public void testTest() {
         GsonBuilder builder = new GsonBuilder();

@@ -24,7 +24,7 @@ public enum LoginHandler {
         System.out.println("Input password: ");
         String password = scanner.next();
 
-        //TODO: get rid of dummy data, should checked with DB Query
+        //TODO: get rid of dummy data, should checked with DB Query. Maybe leave for m2 for simplicity
         return "admin".equals(username) && "password".equals(password);
     }
 }
