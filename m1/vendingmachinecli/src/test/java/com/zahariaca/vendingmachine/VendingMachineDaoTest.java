@@ -1,6 +1,7 @@
 package com.zahariaca.vendingmachine;
 
 import com.zahariaca.exceptions.NoSuchProductException;
+import com.zahariaca.exceptions.ProductAlreadyExistsException;
 import com.zahariaca.pojo.Product;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +49,7 @@ public class VendingMachineDaoTest {
     }
 
     @Test
-    public void testAddProduct() {
+    public void testAddProduct() throws ProductAlreadyExistsException {
         Product newProduct = new Product("NewProduct", "Test product description", 80f);
         vendingMachine.addProduct(newProduct);
         Product returnedNewProduct = null;
@@ -61,13 +62,20 @@ public class VendingMachineDaoTest {
     }
 
     @Test
+    public void testAddProductThrowsExceptionOnDuplicate() {
+        assertThrows(ProductAlreadyExistsException.class,
+                () -> vendingMachine.addProduct(productOne),
+                String.format("The product: %n%s%n already exists! Cannot add!", productOne));
+    }
+
+    @Test
     public void testDeleteProduct() {
         try {
             vendingMachine.deleteProduct(productOne.getName(), productOne.getUniqueId());
         } catch (NoSuchProductException e) {
             fail(e.getMessage());
         }
-        assertEquals(1, vendingMachine.getProducts().size());
+        assertEquals(1, vendingMachine.getProductsSet().size());
         assertThrows(NoSuchProductException.class, () -> vendingMachine.buyProduct(productOne.getName()));
     }
 
