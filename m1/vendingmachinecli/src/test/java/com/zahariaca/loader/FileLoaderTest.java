@@ -8,6 +8,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -21,8 +22,12 @@ public class FileLoaderTest {
 
     @BeforeEach
     public void init() {
-        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f);
-        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f);
+        UUID productOneUUID = UUID.fromString("8f70c754-4257-43d1-91e8-9438838d23cd");
+        UUID productTwoUUID = UUID.fromString("1a24f45c-bde1-4242-8545-22c879fdf8b8");
+        UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
+        UUID supplierTwoUUID = UUID.fromString("ac7ed436-14ee-47f2-8005-72e7674b8be3");
+        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOneUUID, supplierOneUUID);
+        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, productTwoUUID, supplierTwoUUID);
     }
 
     @Test
@@ -40,10 +45,10 @@ public class FileLoaderTest {
         assertTrue(!testSet.isEmpty());
         assertTrue(testSet.size() == 2);
 
-        Optional<Product> optionalOne =testSet.stream().filter(product -> product.getUniqueId().equals(productOne.getUniqueId())).findFirst();
+        Optional<Product> optionalOne = testSet.stream().filter(product -> product.getUniqueId().equals(productOne.getUniqueId())).findFirst();
         assertTrue(optionalOne.get().equals(productOne));
 
-        Optional<Product> optionalTwo =testSet.stream().filter(product -> product.getUniqueId().equals(productTwo.getUniqueId())).findFirst();
+        Optional<Product> optionalTwo = testSet.stream().filter(product -> product.getUniqueId().equals(productTwo.getUniqueId())).findFirst();
         assertTrue(optionalTwo.get().equals(productTwo));
     }
 }

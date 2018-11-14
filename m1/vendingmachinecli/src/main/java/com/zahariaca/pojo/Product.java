@@ -1,6 +1,6 @@
 package com.zahariaca.pojo;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import java.util.UUID;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
@@ -9,13 +9,15 @@ public class Product {
     private String name;
     private String description;
     private float price;
-    private String uniqueId;
+    private UUID uniqueId;
+    private UUID supplierId;
 
-    public Product(String name, String description, float price) {
+    public Product(String name, String description, float price, UUID uniqueId, UUID supplierId) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.uniqueId = DigestUtils.sha256Hex(name + description + price);
+        this.uniqueId = uniqueId;
+        this.supplierId = supplierId;
     }
 
     public String getName() {
@@ -30,8 +32,12 @@ public class Product {
         return price;
     }
 
-    public String getUniqueId() {
+    public UUID getUniqueId() {
         return uniqueId;
+    }
+
+    public UUID getSupplierId() {
+        return supplierId;
     }
 
     @Override
@@ -52,17 +58,18 @@ public class Product {
         Product product = (Product) o;
 
         if (Float.compare(product.getPrice(), getPrice()) != 0) return false;
-        if (!getName().equals(product.getName())) return false;
-        if (!getDescription().equals(product.getDescription())) return false;
-        return getUniqueId().equals(product.getUniqueId());
+        if (getName() != null ? !getName().equals(product.getName()) : product.getName() != null) return false;
+        if (getDescription() != null ? !getDescription().equals(product.getDescription()) : product.getDescription() != null)
+            return false;
+        return getUniqueId() != null ? getUniqueId().equals(product.getUniqueId()) : product.getUniqueId() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getName().hashCode();
-        result = 31 * result + getDescription().hashCode();
+        int result = getName() != null ? getName().hashCode() : 0;
+        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
         result = 31 * result + (getPrice() != +0.0f ? Float.floatToIntBits(getPrice()) : 0);
-        result = 31 * result + getUniqueId().hashCode();
+        result = 31 * result + (getUniqueId() != null ? getUniqueId().hashCode() : 0);
         return result;
     }
 }

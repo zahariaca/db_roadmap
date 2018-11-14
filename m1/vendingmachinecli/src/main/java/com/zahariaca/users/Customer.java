@@ -20,6 +20,7 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
     private Logger logger = LogManager.getLogger(Customer.class);
     private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = null;
     private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue = null;
+    private Scanner scanner;
 
     @Override
     public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String>> commandQueue) {
@@ -39,7 +40,8 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
         checkQueues();
 
         boolean continueCondition = true;
-        Scanner scanner = new Scanner(System.in);
+
+        scanner = new Scanner(System.in);
 
         while (continueCondition) {
             System.out.println(
@@ -68,8 +70,9 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
 
     private void checkQueues() {
         if (commandQueue == null || resultQueue == null) {
-            logger.log(Level.ERROR, "COMMAND QUEUE / RESULT QUEUE IS NULL. Something very bad has happened...cannot operate");
-            System.exit(-1);
+            String message = "COMMAND QUEUE / RESULT QUEUE IS NULL. Something very bad has happened...cannot operate";
+            logger.log(Level.ERROR, message);
+            throw new RuntimeException(message);
         }
     }
 
@@ -91,14 +94,14 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private void sendDisplayEvent() throws InterruptedException {
-        addEventToResultQueue("", OperationType.DISPLAY);
+        addEventToCommandQueue(OperationType.DISPLAY, "");
         System.out.println(Thread.currentThread() + " ++ Display products");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
     }
 
     private void handleBuyOption() throws InterruptedException {
         String userOrder = promptForOrder();
-        addEventToResultQueue(userOrder, OperationType.BUY);
+        addEventToCommandQueue(OperationType.BUY, userOrder);
         System.out.println(Thread.currentThread() + " ++ Buy product");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.BUY);
 
@@ -106,7 +109,6 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private String promptForOrder() {
-        Scanner scanner = new Scanner(System.in);
         System.out.println("What would you like to order (name of product): ");
         return scanner.next();
     }
@@ -121,8 +123,8 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
         }
     }
 
-    private void addEventToResultQueue(String userOrder, OperationType commandOperation) throws InterruptedException {
-        commandQueue.put(new OperationsEvent<OperationType, String>() {
+    private void addEventToCommandQueue(OperationType commandOperation, String userOrder) throws InterruptedException {
+        commandQueue.put(new OperationsEvent<>() {
             @Override
             public OperationType getType() {
                 return commandOperation;

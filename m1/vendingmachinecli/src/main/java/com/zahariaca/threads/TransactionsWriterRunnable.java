@@ -53,7 +53,7 @@ public class TransactionsWriterRunnable implements Runnable {
         }
 
         Product product = transactionWriterOperation.getPayload();
-        ProductTransaction productTransaction = new ProductTransaction(product.getUniqueId(), product.getPrice());
+        ProductTransaction productTransaction = new ProductTransaction(product.getUniqueId().toString(), product.getPrice());
 
         String transactionString = transformToJsonString(productTransaction);
 

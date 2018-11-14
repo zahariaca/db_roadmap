@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,8 +31,12 @@ public class VendingMachineDaoTest {
 
     @BeforeEach
     public void init() {
-        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f);
-        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f);
+        UUID productOneUUID = UUID.fromString("8f70c754-4257-43d1-91e8-9438838d23cd");
+        UUID productTwoUUID = UUID.fromString("1a24f45c-bde1-4242-8545-22c879fdf8b8");
+        UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
+        UUID supplierTwoUUID = UUID.fromString("ac7ed436-14ee-47f2-8005-72e7674b8be3");
+        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOneUUID, supplierOneUUID);
+        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, productTwoUUID, supplierTwoUUID);
         productSet = new HashSet<Product>();
         productSet.add(productOne);
         productSet.add(productTwo);
@@ -50,7 +55,7 @@ public class VendingMachineDaoTest {
 
     @Test
     public void testAddProduct() throws ProductAlreadyExistsException {
-        Product newProduct = new Product("NewProduct", "Test product description", 80f);
+        Product newProduct = new Product("NewProduct", "Test product description", 80f, UUID.randomUUID(), UUID.randomUUID());
         vendingMachine.addProduct(newProduct);
         Product returnedNewProduct = null;
         try {
@@ -71,7 +76,7 @@ public class VendingMachineDaoTest {
     @Test
     public void testDeleteProduct() {
         try {
-            vendingMachine.deleteProduct(productOne.getName(), productOne.getUniqueId());
+            vendingMachine.deleteProduct(productOne.getName(), productOne.getUniqueId().toString());
         } catch (NoSuchProductException e) {
             fail(e.getMessage());
         }
@@ -82,9 +87,7 @@ public class VendingMachineDaoTest {
     @Test
     public void testDeleteProductThrowsException() {
         assertThrows(NoSuchProductException.class,
-                () -> {
-                    vendingMachine.deleteProduct("InvalidProduct", "InvalidUniqueID");
-                }, "Product: InvalidProduct with uniqueID: InvalidUniqueID, was not found. Could not be deleted!");
+                () -> vendingMachine.deleteProduct("InvalidProduct", "InvalidUniqueID"));
     }
 
     @Test
@@ -92,8 +95,15 @@ public class VendingMachineDaoTest {
         String newName = "NewName";
         String newDescription = "New description to be changed";
         String newPrice = "7f";
-        String uniqueId = productOne.getUniqueId();
-        vendingMachine.changeProduct(newName, newDescription, newPrice, uniqueId);
+        String uniqueId = productOne.getUniqueId().toString();
+        Product changedProduct = new Product("NewName", "New description to be changed", Float.parseFloat("7f"), productOne.getUniqueId(), productOne.getSupplierId());
+        try {
+            vendingMachine.changeProduct(changedProduct);
+        } catch (NoSuchProductException e) {
+            e.printStackTrace();
+        } catch (ProductAlreadyExistsException e) {
+            e.printStackTrace();
+        }
         Product returnedChangedProduct = null;
         try {
             returnedChangedProduct = vendingMachine.buyProduct("NewName");
@@ -104,7 +114,19 @@ public class VendingMachineDaoTest {
         assertEquals(returnedChangedProduct.getName(), newName);
         assertEquals(returnedChangedProduct.getDescription(), newDescription);
         assertEquals(returnedChangedProduct.getPrice(), Float.parseFloat(newPrice));
-        assertEquals(returnedChangedProduct.getUniqueId(), uniqueId, "Unique ID should NOT change when modifying products!");
+        assertEquals(returnedChangedProduct.getUniqueId(), UUID.fromString(uniqueId), "Unique ID should NOT change when modifying products!");
+    }
+
+    @Test
+    public void testChangeProductThrowsWithWrongSupplierIdException() {
+        assertThrows(NoSuchProductException.class,
+                () -> vendingMachine.changeProduct(new Product("NewName", "New description to be changed", Float.parseFloat("7f"), productOne.getUniqueId(), productTwo.getSupplierId())));
+    }
+
+    @Test
+    public void testChangeProductThrowsWithWrongProductIDException() {
+        assertThrows(NoSuchProductException.class,
+                () -> vendingMachine.changeProduct(new Product("NewName", "New description to be changed", Float.parseFloat("7f"), productTwo.getUniqueId(), productOne.getSupplierId())));
     }
 
     @Test

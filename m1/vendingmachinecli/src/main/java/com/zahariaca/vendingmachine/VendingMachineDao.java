@@ -4,14 +4,18 @@ import com.zahariaca.dao.Dao;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
 import com.zahariaca.pojo.Product;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
 public class VendingMachineDao implements Dao<Product, String> {
+    private static final Logger logger = LogManager.getLogger(VendingMachineDao.class);
     private Set<Product> productsSet;
 
     //TODO: When should the write be done? On shutdown? Or sequentially with each operation? Maybe on shutdown for simplicity in m1
@@ -21,7 +25,7 @@ public class VendingMachineDao implements Dao<Product, String> {
 
     @Override
     public void addProduct(Product product) throws ProductAlreadyExistsException {
-        if (!productsSet.stream().anyMatch(product::equals)) {
+        if (productsSet.stream().noneMatch(product::equals)) {
             productsSet.add(product);
         } else {
             throw new ProductAlreadyExistsException(String.format("The product: %n%s%n already exists! Cannot add!", product));
@@ -30,12 +34,12 @@ public class VendingMachineDao implements Dao<Product, String> {
 
     @Override
     public void displayProducts() {
-        productsSet.stream().forEach(p -> System.out.println(p.toString()));
+        productsSet.forEach(p -> System.out.println(p.toString()));
     }
 
     @Override
     public void deleteProduct(String productName, String uniqueId) throws NoSuchProductException {
-        Optional<Product> product = productsSet.stream().filter(p -> productName.equals(p.getName()) && uniqueId.equals(p.getUniqueId())).findAny();
+        Optional<Product> product = productsSet.stream().filter(p -> productName.equals(p.getName()) && UUID.fromString(uniqueId).equals(p.getUniqueId())).findAny();
         if (product.isPresent()) {
             productsSet.remove(product.get());
         } else {
@@ -44,8 +48,15 @@ public class VendingMachineDao implements Dao<Product, String> {
     }
 
     @Override
-    public void changeProduct(String productName, String productDescription, String productPrice, String uniqueId) {
+    public void changeProduct(Product product) throws NoSuchProductException, ProductAlreadyExistsException {
+        Optional<Product> productMatch = productsSet.stream().filter(p -> product.getUniqueId().equals(p.getUniqueId()) && product.getSupplierId().equals(p.getSupplierId())).findAny();
 
+        if (productMatch.isPresent()) {
+            productsSet.remove(productMatch.get());
+            addProduct(product);
+        } else {
+            throw new NoSuchProductException(String.format("The product: %s is invalid. No changes are made.", product));
+        }
     }
 
     @Override
