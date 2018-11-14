@@ -50,6 +50,7 @@ public class TransactionsWriterRunnable implements Runnable {
         OperationsEvent<TransactionWriterOperationType, Product> transactionWriterOperation = transactionsQueue.take();
         if (transactionWriterOperation.getType().equals(TransactionWriterOperationType.QUIT)) {
             continueCondition = false;
+            return;
         }
 
         Product product = transactionWriterOperation.getPayload();

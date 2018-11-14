@@ -1,7 +1,7 @@
 package com.zahariaca;
 
 import com.zahariaca.dao.Dao;
-import com.zahariaca.loader.FileLoader;
+import com.zahariaca.loader.ProductFileLoader;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.CLIRunnable;
 import com.zahariaca.threads.TransactionsWriterRunnable;
@@ -40,7 +40,7 @@ public class Main {
         System.out.println("Starting up...");
 
         File file = FileUtils.INSTANCE.getFile("persistence/products.json");
-        Dao<Product, String> vendingMachine = new VendingMachineDao(FileLoader.INSTANCE.loadFromFile(file));
+        Dao<Product, String> vendingMachine = new VendingMachineDao(ProductFileLoader.INSTANCE.loadFromFile(file));
 
         logger.log(Level.INFO, ">O: Prerequisites created...");
         new Thread(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine)).start();

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class FileLoaderTest {
+public class ProductFileLoaderTest {
     private Product productOne;
     private Product productTwo;
 
@@ -41,7 +41,7 @@ public class FileLoaderTest {
             fail("File not found.");
         }
 
-        Set<Product> testSet = FileLoader.INSTANCE.loadFromFile(file);
+        Set<Product> testSet = ProductFileLoader.INSTANCE.loadFromFile(file);
         assertTrue(!testSet.isEmpty());
         assertTrue(testSet.size() == 2);
 

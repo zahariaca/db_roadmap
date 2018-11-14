@@ -21,10 +21,10 @@ import java.util.Set;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public enum FileLoader {
+public enum ProductFileLoader {
     INSTANCE;
 
-    Logger logger = LogManager.getLogger(FileLoader.class);
+    Logger logger = LogManager.getLogger(ProductFileLoader.class);
 
     public Set<Product> loadFromFile(File file) {
         logger.log(Level.DEBUG, "Reading from file: {}", file.getAbsolutePath());
@@ -33,8 +33,7 @@ public enum FileLoader {
         Gson gson = builder.create();
 
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
-            Type hashSetType = new TypeToken<HashSet<Product>>() {
-            }.getType();
+            Type hashSetType = new TypeToken<HashSet<Product>>() {}.getType();
             Set<Product> deserializedSet = gson.fromJson(bufferedReader, hashSetType);
 
             logger.log(Level.DEBUG, "Deserialization successful, returning set.");

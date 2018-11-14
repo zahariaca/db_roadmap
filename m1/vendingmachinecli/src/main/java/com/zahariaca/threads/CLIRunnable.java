@@ -56,6 +56,7 @@ public class CLIRunnable implements Runnable {
 
                 if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
                     handleShutdown();
+                    continue;
                 }
 
                 if (!UserInputUtils.INSTANCE.checkIsNumericCharacter(userInput)) {

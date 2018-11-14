@@ -1,7 +1,12 @@
 package com.zahariaca.threads;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.zahariaca.dao.Dao;
 import com.zahariaca.exceptions.NoSuchProductException;
+import com.zahariaca.exceptions.ProductAlreadyExistsException;
+import com.zahariaca.loader.ProductFileWriter;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
@@ -11,6 +16,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -45,8 +51,10 @@ public class VendingMachineRunnable implements Runnable {
                     handleDisplayProcess(receivedEvent);
                 } else if (receivedEvent.getType().equals(OperationType.BUY)) {
                     handleBuyProcess(receivedEvent);
+                } else if (receivedEvent.getType().equals(OperationType.ADD)) {
+                    handleAddEvent(receivedEvent.getPayload());
                 } else if (receivedEvent.getType().equals(OperationType.QUIT)) {
-                    handleShutdown(receivedEvent);
+                    handleShutdown();
                 }
             }
             logger.log(Level.DEBUG, ">O: infinite loop exit.");
@@ -71,16 +79,42 @@ public class VendingMachineRunnable implements Runnable {
         }
     }
 
-    private void handleShutdown(OperationsEvent<OperationType, String> receivedEvent) throws InterruptedException {
-        handleTransactionQueueShutdown();
-        System.out.println(Thread.currentThread() + " >> QUIT >> " + receivedEvent.getPayload());
-        System.out.println("Goodbye!");
-        continueCondition = false;
+
+    private void handleAddEvent(String payload) {
+        try {
+            vendingMachine.addProduct(deserializeJsonProduct(payload));
+        } catch (ProductAlreadyExistsException e) {
+            logger.log(Level.ERROR, ">E: Message: ", e.getMessage());
+            //TODO: add event to result queue, to let supplier know of the problem, delete syso
+            System.out.println("The product already exists");
+        }
     }
+
+    private void handleShutdown() throws InterruptedException {
+        handleTransactionQueueShutdown();
+        handleFinalOperation();
+    }
+
+
 
     private void handleTransactionQueueShutdown() throws InterruptedException {
         addEventToTransactionsQueue(null, TransactionWriterOperationType.QUIT);
     }
+
+    private void handleFinalOperation() {
+        try {
+            ProductFileWriter.INSTANCE.handleFileWrite(vendingMachine.getProductsSet());
+            System.out.println("Application terminating gracefully!");
+            System.out.println("Goodbye!");
+            continueCondition = false;
+        } catch (IOException e) {
+            logger.log(Level.ERROR, ">E: Could not write persistence file on shutdown. Message: {} ", e.getMessage());
+            System.out.println("Application terminating without saving products! Error occurred!");
+            System.out.println("Goodbye!");
+            continueCondition = false;
+        }
+    }
+
 
     private void sendProductToClient(String payload) throws NoSuchProductException, InterruptedException {
         Product returnedProduct = vendingMachine.buyProduct(payload);
@@ -91,6 +125,13 @@ public class VendingMachineRunnable implements Runnable {
 
     private void handleNoProduct() throws InterruptedException {
         addEventToResultQueue(null, ResultOperationType.PRODUCT_NOT_FOUND);
+    }
+
+
+    private Product deserializeJsonProduct(String payload) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        return gson.fromJson(payload, new TypeToken<Product>(){}.getType());
     }
 
     private void addEventToResultQueue(Product returnedProduct, ResultOperationType resultOperationType) throws InterruptedException {

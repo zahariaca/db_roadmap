@@ -1,5 +1,6 @@
 package com.zahariaca.users;
 
+import com.zahariaca.exceptions.UserInUnsafeStateException;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
@@ -72,7 +73,7 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
         if (commandQueue == null || resultQueue == null) {
             String message = "COMMAND QUEUE / RESULT QUEUE IS NULL. Something very bad has happened...cannot operate";
             logger.log(Level.ERROR, message);
-            throw new RuntimeException(message);
+            throw new UserInUnsafeStateException(message);
         }
     }
 

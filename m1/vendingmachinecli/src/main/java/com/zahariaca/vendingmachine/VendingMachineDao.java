@@ -68,7 +68,7 @@ public class VendingMachineDao implements Dao<Product, String> {
         throw new NoSuchProductException(String.format("Product: %s does not exist.", productName));
     }
 
-
+    @Override
     public Set<Product> getProductsSet() {
         return productsSet;
     }

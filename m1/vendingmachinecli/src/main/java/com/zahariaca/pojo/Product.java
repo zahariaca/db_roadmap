@@ -61,7 +61,7 @@ public class Product {
         if (getName() != null ? !getName().equals(product.getName()) : product.getName() != null) return false;
         if (getDescription() != null ? !getDescription().equals(product.getDescription()) : product.getDescription() != null)
             return false;
-        return getUniqueId() != null ? getUniqueId().equals(product.getUniqueId()) : product.getUniqueId() == null;
+        return getSupplierId() != null ? getSupplierId().equals(product.getSupplierId()) : product.getSupplierId() == null;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class Product {
         int result = getName() != null ? getName().hashCode() : 0;
         result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
         result = 31 * result + (getPrice() != +0.0f ? Float.floatToIntBits(getPrice()) : 0);
-        result = 31 * result + (getUniqueId() != null ? getUniqueId().hashCode() : 0);
+        result = 31 * result + (getSupplierId() != null ? getSupplierId().hashCode() : 0);
         return result;
     }
 }
