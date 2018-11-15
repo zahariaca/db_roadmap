@@ -32,11 +32,10 @@ class ProductFileLoaderTest {
 
     @Test
     void testCorrectLoading() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL fileUrl = classLoader.getResource("test-products.json");
+        String fileUrl = "src\\test\\resources\\test-products.json";
         File file = null;
         if (fileUrl != null) {
-            file = new File(fileUrl.getFile());
+            file = new File(fileUrl);
         } else {
             fail("File not found.");
         }
