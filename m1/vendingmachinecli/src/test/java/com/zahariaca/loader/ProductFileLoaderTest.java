@@ -1,6 +1,7 @@
 package com.zahariaca.loader;
 
 import com.zahariaca.pojo.Product;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +10,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -22,12 +24,11 @@ public class ProductFileLoaderTest {
 
     @BeforeEach
     public void init() {
-        UUID productOneUUID = UUID.fromString("8f70c754-4257-43d1-91e8-9438838d23cd");
-        UUID productTwoUUID = UUID.fromString("1a24f45c-bde1-4242-8545-22c879fdf8b8");
+        Product.setIdGenerator(new AtomicInteger(1000));
         UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
         UUID supplierTwoUUID = UUID.fromString("ac7ed436-14ee-47f2-8005-72e7674b8be3");
-        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOneUUID, supplierOneUUID);
-        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, productTwoUUID, supplierTwoUUID);
+        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
+        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, supplierTwoUUID);
     }
 
     @Test
@@ -45,10 +46,10 @@ public class ProductFileLoaderTest {
         assertTrue(!testSet.isEmpty());
         assertTrue(testSet.size() == 2);
 
-        Optional<Product> optionalOne = testSet.stream().filter(product -> product.getUniqueId().equals(productOne.getUniqueId())).findFirst();
+        Optional<Product> optionalOne = testSet.stream().filter(product -> product.getUniqueId() == productOne.getUniqueId()).findAny();
         assertTrue(optionalOne.get().equals(productOne));
 
-        Optional<Product> optionalTwo = testSet.stream().filter(product -> product.getUniqueId().equals(productTwo.getUniqueId())).findFirst();
+        Optional<Product> optionalTwo = testSet.stream().filter(product -> product.getUniqueId() == productTwo.getUniqueId()).findAny();
         assertTrue(optionalTwo.get().equals(productTwo));
     }
 }

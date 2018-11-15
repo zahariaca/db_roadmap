@@ -17,8 +17,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
@@ -40,7 +44,11 @@ public class Main {
         System.out.println("Starting up...");
 
         File file = FileUtils.INSTANCE.getFile("persistence/products.json");
-        Dao<Product, String> vendingMachine = new VendingMachineDao(ProductFileLoader.INSTANCE.loadFromFile(file));
+        Set<Product> loadedProducts = ProductFileLoader.INSTANCE.loadFromFile(file);
+        OptionalInt largestIdOptional = loadedProducts.stream().mapToInt(Product::getUniqueId).max();
+
+        Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
+        Dao<Product, String> vendingMachine = new VendingMachineDao(loadedProducts);
 
         logger.log(Level.INFO, ">O: Prerequisites created...");
         new Thread(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine)).start();

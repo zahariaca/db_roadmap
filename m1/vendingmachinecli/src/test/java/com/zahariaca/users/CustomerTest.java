@@ -32,9 +32,8 @@ public class CustomerTest {
     public void init() {
         stdin = System.in;
         customer = new Customer();
-        UUID productOneUUID = UUID.fromString("8f70c754-4257-43d1-91e8-9438838d23cd");
         UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
-        sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOneUUID, supplierOneUUID);
+        sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);
         BlockingQueue<OperationsEvent<ResultOperationType, Product>> realResultQueue = new LinkedBlockingQueue(1);
         resultQueue = spy(realResultQueue);
@@ -53,7 +52,6 @@ public class CustomerTest {
         String dummySystemIn = String.format("%s%n%s%n", "1", "q");
         System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
         customer.promptUserOptions();
-//        then(commandQueue).should().put();
         OperationsEvent<OperationType, String> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.DISPLAY);
         assertEquals(commandEvent.getPayload(), "");

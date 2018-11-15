@@ -13,7 +13,7 @@ public interface Dao<T, K> {
 
     void displayProducts();
 
-    void deleteProduct(K productName, K uniqueId) throws NoSuchProductException;
+    void deleteProduct(K uniqueId) throws NoSuchProductException;
 
     void changeProduct(T product) throws NoSuchProductException, ProductAlreadyExistsException;
 

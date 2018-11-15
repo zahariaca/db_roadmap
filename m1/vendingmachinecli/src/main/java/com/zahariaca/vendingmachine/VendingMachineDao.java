@@ -38,18 +38,18 @@ public class VendingMachineDao implements Dao<Product, String> {
     }
 
     @Override
-    public void deleteProduct(String productName, String uniqueId) throws NoSuchProductException {
-        Optional<Product> product = productsSet.stream().filter(p -> productName.equals(p.getName()) && UUID.fromString(uniqueId).equals(p.getUniqueId())).findAny();
+    public void deleteProduct(String uniqueId) throws NoSuchProductException {
+        Optional<Product> product = productsSet.stream().filter(p -> Integer.valueOf(uniqueId) == p.getUniqueId()).findAny();
         if (product.isPresent()) {
             productsSet.remove(product.get());
         } else {
-            throw new NoSuchProductException(String.format("Product: %s with uniqueID: %s, was not found. Could not be deleted!", productName, uniqueId));
+            throw new NoSuchProductException(String.format("Product with uniqueID: %s, was not found. Could not be deleted!", uniqueId));
         }
     }
 
     @Override
     public void changeProduct(Product product) throws NoSuchProductException, ProductAlreadyExistsException {
-        Optional<Product> productMatch = productsSet.stream().filter(p -> product.getUniqueId().equals(p.getUniqueId()) && product.getSupplierId().equals(p.getSupplierId())).findAny();
+        Optional<Product> productMatch = productsSet.stream().filter(p -> product.getUniqueId() == p.getUniqueId() && product.getSupplierId().equals(p.getSupplierId())).findAny();
 
         if (productMatch.isPresent()) {
             productsSet.remove(productMatch.get());

@@ -3,6 +3,7 @@ package com.zahariaca.pojo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,16 +26,18 @@ public class ProductTest {
     private Product productOneCopy;
     private Product productTwo;
 
+    @BeforeClass
+    public void initClass() {
+        Product.setIdGenerator(new AtomicInteger(1000));
+    }
 
     @BeforeEach
     public void init() {
-        UUID productOneUUID = UUID.fromString("8f70c754-4257-43d1-91e8-9438838d23cd");
-        UUID productTwoUUID = UUID.fromString("1a24f45c-bde1-4242-8545-22c879fdf8b8");
         UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
         UUID supplierTwoUUID = UUID.fromString("ac7ed436-14ee-47f2-8005-72e7674b8be3");
-        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOneUUID, supplierOneUUID);
-        productOneCopy = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOneUUID, supplierOneUUID);
-        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, productTwoUUID, supplierTwoUUID);
+        productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
+        productOneCopy = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOne.getUniqueId(), supplierOneUUID);
+        productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, supplierTwoUUID);
     }
 
 
@@ -41,14 +45,13 @@ public class ProductTest {
     public void testEquality() {
         assertTrue(productOne.equals(productOneCopy));
         assertTrue(productOne.hashCode() == productOneCopy.hashCode());
-        assertTrue(productOne.getUniqueId().equals(productOneCopy.getUniqueId()));
     }
 
     @Test
     public void testNotEqual() {
         assertFalse(productOne.equals(productTwo));
         assertFalse(productOne.hashCode() == productTwo.hashCode());
-        assertFalse(productOne.getUniqueId().equals(productTwo.getUniqueId()));
+        assertFalse(productOne.getUniqueId() == productTwo.getUniqueId());
     }
 
     //TODO: REMOVE THIS TESTING AREA

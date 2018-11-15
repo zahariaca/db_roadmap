@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 
 /**
@@ -33,7 +34,7 @@ public enum ProductFileLoader {
         Gson gson = builder.create();
 
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
-            Type hashSetType = new TypeToken<HashSet<Product>>() {}.getType();
+            Type hashSetType = new TypeToken<TreeSet<Product>>() {}.getType();
             Set<Product> deserializedSet = gson.fromJson(bufferedReader, hashSetType);
 
             logger.log(Level.DEBUG, "Deserialization successful, returning set.");

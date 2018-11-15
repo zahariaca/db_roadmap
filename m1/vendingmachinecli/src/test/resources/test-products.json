@@ -1,4 +1,4 @@
 [
-  {"name":"Soda","description":"Sugary refreshing beverage","price":5.6,"uniqueId":"8f70c754-4257-43d1-91e8-9438838d23cd","supplierId":"a3af93f2-0fff-42e0-b84c-6e507ece0264"},
-  {"name":"Chips","description":"Salty pack of thin potatoes","price":8.0,"uniqueId":"1a24f45c-bde1-4242-8545-22c879fdf8b8","supplierId":"ac7ed436-14ee-47f2-8005-72e7674b8be3"}
+  {"name":"Soda","description":"Sugary refreshing beverage","price":5.6,"uniqueId":1001,"supplierId":"a3af93f2-0fff-42e0-b84c-6e507ece0264"},
+  {"name":"Chips","description":"Salty pack of thin potatoes","price":8.0,"uniqueId":1002,"supplierId":"ac7ed436-14ee-47f2-8005-72e7674b8be3"}
 ]

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Set;
 
 
@@ -30,11 +29,13 @@ public enum ProductFileWriter {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         String data = gson.toJson(vendingMachineProducts);
-        String prettyData = data.replace("},", "}," + System.lineSeparator());
+        data = data.replace("[", "[" + System.lineSeparator());
+        data = data.replace("},", "}," + System.lineSeparator());
+        data = data.replace("}]", "}" + System.lineSeparator() + "]");
 
         File file = FileUtils.INSTANCE.getFile("persistence/products.json");
         Path path = Paths.get(file.toURI());
         logger.log(Level.DEBUG, "Output file: {}", file.getAbsolutePath());
-        Files.write(path, prettyData.getBytes());
+        Files.write(path, data.getBytes());
     }
 }

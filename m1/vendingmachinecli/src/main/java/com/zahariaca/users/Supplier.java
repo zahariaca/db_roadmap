@@ -25,6 +25,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
     private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = null;
     private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue = null;
     private Scanner scanner;
+    private String supplierId = "a3af93f2-0fff-42e0-b84c-6e507ece0264";
 
     @Override
     public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String>> commandQueue) {
@@ -92,13 +93,14 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
             if (Integer.valueOf(userInput) == 1) {
                 sendDisplayEvent();
             } else if (Integer.valueOf(userInput) == 2) {
-                //TODO: handle add process
                 handleAddOption();
             } else if (Integer.valueOf(userInput) == 3) {
                 //TODO: handle delete process
+                sendDisplayEvent();
                 handleDeleteProduct();
             } else if (Integer.valueOf(userInput) == 4) {
                 //TODO: handle change price process
+                sendDisplayEvent();
                 handleChangePrice();
             } else if (Integer.valueOf(userInput) == 5) {
                 //TODO: handle change name process
@@ -115,7 +117,6 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
 
     private void sendDisplayEvent() throws InterruptedException {
         addEventToCommandQueue(OperationType.DISPLAY, "");
-        System.out.println(Thread.currentThread() + " ++ Display products");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
     }
 
@@ -125,7 +126,13 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
 
         addEventToCommandQueue(OperationType.ADD, serializedJsonProduct(newProduct));
 
-        System.out.println("Add product");
+        System.out.println("Adding product: newProduct");
+
+        if (resultQueue.take().getType().equals(ResultOperationType.SUCCESS)) {
+            System.out.println("Successfully added product to VendingMachine!");
+        } else if (resultQueue.take().getType().equals(ResultOperationType.ADD_ERROR)) {
+            System.out.println("Could not add product. Try again...");
+        }
     }
 
     private Product promptForAdd() {
@@ -133,8 +140,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
         String productDescription;
         String productPrice;
         // TODO: hardcoded supplier ID. Temporary, should be removed soon!!
-        // FIXME:
-        String supplierId = "a3af93f2-0fff-42e0-b84c-6e507ece0264";
+        // FIXME
 
         System.out.println("Name of new product: ");
         productName = scanner.nextLine();
@@ -144,7 +150,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
         productPrice = scanner.nextLine();
         // TODO: Product price should be checked before being parsed as float
 
-        return new Product(productName, productDescription, Float.parseFloat(productPrice), UUID.randomUUID(), UUID.fromString(supplierId));
+        return new Product(productName, productDescription, Float.parseFloat(productPrice), UUID.fromString(supplierId));
     }
 
     //TODO: rethink...probably not the best way to send product, only like this to not create an extra queue

@@ -80,13 +80,13 @@ public class VendingMachineRunnable implements Runnable {
     }
 
 
-    private void handleAddEvent(String payload) {
+    private void handleAddEvent(String payload) throws InterruptedException {
         try {
             vendingMachine.addProduct(deserializeJsonProduct(payload));
+            addEventToResultQueue(ResultOperationType.SUCCESS, null);
         } catch (ProductAlreadyExistsException e) {
             logger.log(Level.ERROR, ">E: Message: ", e.getMessage());
-            //TODO: add event to result queue, to let supplier know of the problem, delete syso
-            System.out.println("The product already exists");
+            addEventToResultQueue(ResultOperationType.ADD_ERROR, null);
         }
     }
 
@@ -98,7 +98,7 @@ public class VendingMachineRunnable implements Runnable {
 
 
     private void handleTransactionQueueShutdown() throws InterruptedException {
-        addEventToTransactionsQueue(null, TransactionWriterOperationType.QUIT);
+        addEventToTransactionsQueue(TransactionWriterOperationType.QUIT, null);
     }
 
     private void handleFinalOperation() {
@@ -119,12 +119,12 @@ public class VendingMachineRunnable implements Runnable {
     private void sendProductToClient(String payload) throws NoSuchProductException, InterruptedException {
         Product returnedProduct = vendingMachine.buyProduct(payload);
         System.out.println("Delivering your product: " + returnedProduct);
-        addEventToResultQueue(returnedProduct, ResultOperationType.RETURN_PRODUCT);
-        addEventToTransactionsQueue(returnedProduct, TransactionWriterOperationType.WRITE);
+        addEventToResultQueue(ResultOperationType.RETURN_PRODUCT, returnedProduct);
+        addEventToTransactionsQueue(TransactionWriterOperationType.WRITE, returnedProduct);
     }
 
     private void handleNoProduct() throws InterruptedException {
-        addEventToResultQueue(null, ResultOperationType.PRODUCT_NOT_FOUND);
+        addEventToResultQueue(ResultOperationType.PRODUCT_NOT_FOUND, null);
     }
 
 
@@ -134,7 +134,7 @@ public class VendingMachineRunnable implements Runnable {
         return gson.fromJson(payload, new TypeToken<Product>(){}.getType());
     }
 
-    private void addEventToResultQueue(Product returnedProduct, ResultOperationType resultOperationType) throws InterruptedException {
+    private void addEventToResultQueue(ResultOperationType resultOperationType, Product returnedProduct) throws InterruptedException {
         resultQueue.put(new OperationsEvent<ResultOperationType, Product>() {
             @Override
             public ResultOperationType getType() {
@@ -147,7 +147,7 @@ public class VendingMachineRunnable implements Runnable {
         });
     }
 
-    private void addEventToTransactionsQueue(Product returnedProduct, TransactionWriterOperationType writeOperation) throws InterruptedException {
+    private void addEventToTransactionsQueue(TransactionWriterOperationType writeOperation, Product returnedProduct) throws InterruptedException {
         transactionsQueue.put(new OperationsEvent<TransactionWriterOperationType, Product>() {
             @Override
             public TransactionWriterOperationType getType() {

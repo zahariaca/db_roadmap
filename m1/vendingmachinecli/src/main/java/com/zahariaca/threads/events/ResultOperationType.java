@@ -5,5 +5,9 @@ package com.zahariaca.threads.events;
  */
 public enum ResultOperationType {
     RETURN_PRODUCT,
+    SUCCESS,
+    ADD_ERROR,
+    CHANGE_ERROR,
+    DELETE_ERROR,
     PRODUCT_NOT_FOUND
 }
