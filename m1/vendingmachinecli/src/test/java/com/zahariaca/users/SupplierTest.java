@@ -36,7 +36,6 @@ class SupplierTest {
         Product.setIdGenerator(new AtomicInteger(1000));
         stdin = System.in;
         customer = new Supplier();
-        UUID productOneUUID = UUID.fromString("8f70c754-4257-43d1-91e8-9438838d23cd");
         UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
         sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);

@@ -3,8 +3,6 @@ package com.zahariaca.vendingmachine;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
 import com.zahariaca.pojo.Product;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

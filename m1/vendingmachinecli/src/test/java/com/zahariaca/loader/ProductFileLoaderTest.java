@@ -1,7 +1,6 @@
 package com.zahariaca.loader;
 
 import com.zahariaca.pojo.Product;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class ProductFileLoaderTest {
+class ProductFileLoaderTest {
     private Product productOne;
     private Product productTwo;
 
     @BeforeEach
-    public void init() {
+    void init() {
         Product.setIdGenerator(new AtomicInteger(1000));
         UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
         UUID supplierTwoUUID = UUID.fromString("ac7ed436-14ee-47f2-8005-72e7674b8be3");
@@ -32,7 +31,7 @@ public class ProductFileLoaderTest {
     }
 
     @Test
-    public void testCorrectLoading() {
+    void testCorrectLoading() {
         ClassLoader classLoader = getClass().getClassLoader();
         URL fileUrl = classLoader.getResource("test-products.json");
         File file = null;

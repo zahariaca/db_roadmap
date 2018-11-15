@@ -18,7 +18,7 @@ public enum FileUtils {
     public File getFile(String filePath) {
         File file = new File(filePath);
         try {
-            if(file.createNewFile()) {
+            if (file.createNewFile()) {
                 logger.log(Level.INFO, "File: {} does not exist. Creating.", file.getName());
             }
         } catch (IOException e) {

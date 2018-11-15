@@ -25,6 +25,8 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
     private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = null;
     private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue = null;
     private Scanner scanner;
+    // TODO: hardcoded supplier ID. Temporary, should be removed soon!!
+    // FIXME
     private String supplierId = "a3af93f2-0fff-42e0-b84c-6e507ece0264";
 
     @Override
@@ -101,10 +103,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
             } else if (Integer.valueOf(userInput) == 4) {
                 //TODO: handle change price process
                 sendDisplayEvent();
-                handleChangePrice();
-            } else if (Integer.valueOf(userInput) == 5) {
-                //TODO: handle change name process
-                handleChangeName();
+                handleChangeProduct();
             }
         } catch (InterruptedException ie) {
             logger.log(Level.ERROR, ie.getMessage());
@@ -139,8 +138,6 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
         String productName;
         String productDescription;
         String productPrice;
-        // TODO: hardcoded supplier ID. Temporary, should be removed soon!!
-        // FIXME
 
         System.out.println("Name of new product: ");
         productName = scanner.nextLine();
@@ -164,12 +161,8 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
         System.out.println("Delete product");
     }
 
-    private void handleChangePrice() {
+    private void handleChangeProduct() {
         System.out.println("Change product price");
-    }
-
-    private void handleChangeName() {
-        System.out.println("Change product name");
     }
 
     private void addEventToCommandQueue(OperationType commandOperation, String userOrder) throws InterruptedException {

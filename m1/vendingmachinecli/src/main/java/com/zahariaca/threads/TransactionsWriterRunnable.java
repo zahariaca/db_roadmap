@@ -22,7 +22,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 03.11.2018
  */
-//TODO: think of a way to not have this thread always running. seems wastefull.
+//TODO: think of a way to not have this thread always running. seems wasteful.
 // thread should handle the operation then exit. Then a new thread starts when
 // when an operation is needed. Needs to be thread safe
 public class TransactionsWriterRunnable implements Runnable {

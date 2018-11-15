@@ -11,17 +11,17 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 14.11.2018
  */
-public class CustomerTest {
+class CustomerTest {
     private InputStream stdin;
     private User customer;
     private Product sodaProduct;
@@ -29,7 +29,7 @@ public class CustomerTest {
     private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue;
 
     @BeforeEach
-    public void init() {
+    void init() {
         stdin = System.in;
         customer = new Customer();
         UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
@@ -42,13 +42,13 @@ public class CustomerTest {
     }
 
     @Test
-    public void testEmptyQueue() {
+    void testEmptyQueue() {
         customer = new Customer();
         assertThrows(RuntimeException.class, () -> customer.promptUserOptions(), "Empty Queues results in RuntimeException");
     }
 
     @Test
-    public void testDisplayOption() throws InterruptedException {
+    void testDisplayOption() throws InterruptedException {
         String dummySystemIn = String.format("%s%n%s%n", "1", "q");
         System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
         customer.promptUserOptions();
@@ -58,7 +58,7 @@ public class CustomerTest {
     }
 
     @Test
-    public void testBuyOption() throws InterruptedException {
+    void testBuyOption() throws InterruptedException {
         Thread t = new Thread(getBuyRunnable());
         t.start();
         // TODO: FIXME when time permits...
@@ -98,7 +98,7 @@ public class CustomerTest {
 
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         System.setIn(stdin);
     }
 }

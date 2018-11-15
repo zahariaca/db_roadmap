@@ -96,7 +96,6 @@ public class VendingMachineRunnable implements Runnable {
     }
 
 
-
     private void handleTransactionQueueShutdown() throws InterruptedException {
         addEventToTransactionsQueue(TransactionWriterOperationType.QUIT, null);
     }
@@ -131,7 +130,8 @@ public class VendingMachineRunnable implements Runnable {
     private Product deserializeJsonProduct(String payload) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        return gson.fromJson(payload, new TypeToken<Product>(){}.getType());
+        return gson.fromJson(payload, new TypeToken<Product>() {
+        }.getType());
     }
 
     private void addEventToResultQueue(ResultOperationType resultOperationType, Product returnedProduct) throws InterruptedException {
@@ -140,6 +140,7 @@ public class VendingMachineRunnable implements Runnable {
             public ResultOperationType getType() {
                 return resultOperationType;
             }
+
             @Override
             public Product getPayload() {
                 return returnedProduct;

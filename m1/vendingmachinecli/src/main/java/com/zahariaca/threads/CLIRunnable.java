@@ -52,7 +52,7 @@ public class CLIRunnable implements Runnable {
                                         "   [2] Login as Supplier. %n",
                                         "   [q/quit] to end process. %n")));
 
-                String userInput = scanner.next();
+                String userInput = scanner.nextLine();
 
                 if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
                     handleShutdown();

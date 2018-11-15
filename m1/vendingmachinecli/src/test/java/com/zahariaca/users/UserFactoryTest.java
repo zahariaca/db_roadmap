@@ -9,21 +9,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class UserFactoryTest {
+class UserFactoryTest {
     @Test
-    public void testCustomerUser() throws UnknownUserTypeException {
+    void testCustomerUser() throws UnknownUserTypeException {
         User customer = UserFactory.getUser(TypeOfUser.CUSTOMER);
         assertTrue(customer instanceof Customer);
     }
 
     @Test
-    public void testSupplierUser() throws UnknownUserTypeException {
+    void testSupplierUser() throws UnknownUserTypeException {
         User customer = UserFactory.getUser(TypeOfUser.SUPPLIER);
         assertTrue(customer instanceof Supplier);
     }
 
     @Test
-    public void textException() {
+    void textException() {
         assertThrows(UnknownUserTypeException.class, () -> UserFactory.getUser(null), "No such user, try again.");
     }
 }
