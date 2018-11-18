@@ -1,5 +1,7 @@
 package com.zahariaca.pojo;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -7,14 +9,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
 public class Product implements Comparable<Product> {
+    @Expose
     private String name;
+    @Expose
     private String description;
+    @Expose
     private float price;
+    @Expose
     private int uniqueId;
-    private UUID supplierId;
+    @Expose
+    private String supplierId;
+    @Expose
     private static AtomicInteger idGenerator = new AtomicInteger(1000);
 
-    public Product(String name, String description, float price, UUID supplierId) {
+    public Product(String name, String description, float price, String supplierId) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -22,7 +30,7 @@ public class Product implements Comparable<Product> {
         this.supplierId = supplierId;
     }
 
-    public Product(String name, String description, float price, int uniqueId, UUID supplierId) {
+    public Product(String name, String description, float price, int uniqueId, String supplierId) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -46,7 +54,7 @@ public class Product implements Comparable<Product> {
         return uniqueId;
     }
 
-    public UUID getSupplierId() {
+    public String getSupplierId() {
         return supplierId;
     }
 

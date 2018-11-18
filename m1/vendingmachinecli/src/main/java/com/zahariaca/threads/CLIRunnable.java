@@ -1,15 +1,16 @@
 package com.zahariaca.threads;
 
-import com.zahariaca.exceptions.UnknownUserTypeException;
-import com.zahariaca.pojo.Product;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.users.LoginHandler;
-import com.zahariaca.users.TypeOfUser;
+import com.zahariaca.users.Customer;
+import com.zahariaca.users.Supplier;
 import com.zahariaca.users.User;
-import com.zahariaca.users.UserFactory;
 import com.zahariaca.utils.UserInputUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,11 +23,13 @@ import java.util.concurrent.BlockingQueue;
  */
 public class CLIRunnable implements Runnable {
     private final Logger logger = LogManager.getLogger(CLIRunnable.class);
-    private final BlockingQueue<OperationsEvent<OperationType, String>> commandQueue;
-    private final BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue;
+    private final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
+    private final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
+    private User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> user;
+    private Scanner scanner;
     private volatile boolean continueCondition = true;
 
-    public CLIRunnable(BlockingQueue<OperationsEvent<OperationType, String>> commandQueue, BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue) {
+    public CLIRunnable(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue, BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
         this.commandQueue = commandQueue;
         this.resultQueue = resultQueue;
         logger.log(Level.INFO, ">O: instantiated");
@@ -39,7 +42,7 @@ public class CLIRunnable implements Runnable {
     }
 
     private void promptForUserIdentification() {
-        Scanner scanner = new Scanner(System.in);
+        scanner = new Scanner(System.in);
 
         try {
             while (continueCondition) {
@@ -59,7 +62,7 @@ public class CLIRunnable implements Runnable {
                     continue;
                 }
 
-                if (!UserInputUtils.INSTANCE.checkIsNumericCharacter(userInput)) {
+                if (!UserInputUtils.INSTANCE.checkIsInteger(userInput)) {
                     System.out.println("Incorrect input. Try again.");
                     continue;
                 }
@@ -74,43 +77,74 @@ public class CLIRunnable implements Runnable {
     }
 
     private void handleShutdown() throws InterruptedException {
-        commandQueue.put(new OperationsEvent<OperationType, String>() {
-            @Override
-            public OperationType getType() {
-                return OperationType.QUIT;
-            }
-
-            @Override
-            public String getPayload() {
-                return "";
-            }
-        });
+        addEventToCommandQueue(OperationType.QUIT,  new String[]{""});
         logger.log(Level.INFO, ">O: quit command caught. Initiating application shutdown");
         continueCondition = false;
     }
 
     private void handleUserInput(String userInput) throws InterruptedException {
-        try {
-            if (Integer.valueOf(userInput) == 1) {
-                // no login required for customers, just handle input from them
-                User user = UserFactory.getUser(TypeOfUser.CUSTOMER);
-                user.setCommandQueue(commandQueue);
-                user.setResultQueue(resultQueue);
-                user.promptUserOptions();
-            }
-
-            if (Integer.valueOf(userInput) == 2 && LoginHandler.INSTANCE.checkUserCredentials(TypeOfUser.SUPPLIER)) {
-                // check username and password for supplier, then handle input from them
-                User user = UserFactory.getUser(TypeOfUser.SUPPLIER);
-                user.setCommandQueue(commandQueue);
-                user.setResultQueue(resultQueue);
-                user.promptUserOptions();
-            } else {
-                logger.log(Level.ERROR, ">O: Incorrect credentials, try again!");
-            }
-
-        } catch (UnknownUserTypeException e) {
-            logger.log(Level.ERROR, ">O: {}", e.getMessage());
+        if (Integer.valueOf(userInput) == 1) {
+            // no login required for customers, just handle input from them
+            handleCustomer();
+        } else if (Integer.valueOf(userInput) == 2) {
+            handleSupplier();
         }
+    }
+
+    private void handleCustomer() {
+        user = new Customer();
+        user.setCommandQueue(commandQueue);
+        user.setResultQueue(resultQueue);
+        user.promptUserOptions();
+    }
+
+
+    private void handleSupplier() throws InterruptedException {
+        System.out.println("Input username: ");
+        String username = scanner.nextLine();
+        System.out.println("Input password: ");
+        String password = DigestUtils.sha256Hex(scanner.nextLine());
+
+        sendLoginEvent(new String[]{username, password});
+        waitForResultAndHandle();
+    }
+
+    private void sendLoginEvent(String[] credentials) throws InterruptedException {
+        addEventToCommandQueue(OperationType.USER_LOGIN, credentials);
+    }
+
+    private void waitForResultAndHandle() throws InterruptedException {
+        OperationsEvent<ResultOperationType, String> userResult = resultQueue.take();
+
+        if (userResult.getType().equals(ResultOperationType.SUCCESS)) {
+            user = deserializeJson(userResult.getPayload());
+            user.setCommandQueue(commandQueue);
+            user.setResultQueue(resultQueue);
+            user.promptUserOptions();
+        } else if (userResult.getType().equals(ResultOperationType.LOGIN_ERROR)) {
+            System.out.println("Incorrect credentials, try again!");
+            logger.log(Level.ERROR, ">O: Incorrect credentials, try again!");
+        }
+    }
+
+    private Supplier deserializeJson(String payload) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        return gson.fromJson(payload, new TypeToken<Supplier>() {
+        }.getType());
+    }
+
+    private void addEventToCommandQueue(OperationType commandOperation, String[] userOrder) throws InterruptedException {
+        commandQueue.put(new OperationsEvent<>() {
+            @Override
+            public OperationType getType() {
+                return commandOperation;
+            }
+
+            @Override
+            public String[] getPayload() {
+                return userOrder;
+            }
+        });
     }
 }

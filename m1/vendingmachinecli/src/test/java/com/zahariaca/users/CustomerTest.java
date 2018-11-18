@@ -1,5 +1,9 @@
 package com.zahariaca.users;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapterFactory;
+import com.zahariaca.exceptions.UserInUnsafeStateException;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
@@ -23,19 +27,19 @@ import static org.mockito.Mockito.*;
  */
 class CustomerTest {
     private InputStream stdin;
-    private User customer;
+    private User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> customer;
     private Product sodaProduct;
-    private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue;
-    private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue;
+    private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
+    private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
 
     @BeforeEach
     void init() {
         stdin = System.in;
         customer = new Customer();
-        UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
+        String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
         sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);
-        BlockingQueue<OperationsEvent<ResultOperationType, Product>> realResultQueue = new LinkedBlockingQueue(1);
+        BlockingQueue<OperationsEvent<ResultOperationType, String>> realResultQueue = new LinkedBlockingQueue<>(1);
         resultQueue = spy(realResultQueue);
         customer.setCommandQueue(commandQueue);
         customer.setResultQueue(resultQueue);
@@ -44,17 +48,19 @@ class CustomerTest {
     @Test
     void testEmptyQueue() {
         customer = new Customer();
-        assertThrows(RuntimeException.class, () -> customer.promptUserOptions(), "Empty Queues results in RuntimeException");
+        assertThrows(UserInUnsafeStateException.class, () -> customer.promptUserOptions(), "Empty Queues results in RuntimeException");
     }
 
     @Test
     void testDisplayOption() throws InterruptedException {
-        String dummySystemIn = String.format("%s%n%s%n", "1", "q");
-        System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
-        customer.promptUserOptions();
-        OperationsEvent<OperationType, String> commandEvent = commandQueue.take();
+        Thread t = new Thread(getDisplayRunnable());
+        t.start();
+        // TODO: FIXME when time permits...
+        Thread.sleep(1000);
+        OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.DISPLAY);
-        assertEquals(commandEvent.getPayload(), "");
+        assertEquals(commandEvent.getPayload()[0], "");
+        verify(resultQueue, times(1)).take();
     }
 
     @Test
@@ -63,11 +69,37 @@ class CustomerTest {
         t.start();
         // TODO: FIXME when time permits...
         Thread.sleep(1000);
-        OperationsEvent<OperationType, String> commandEvent = commandQueue.take();
+        OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.BUY);
-        assertEquals(commandEvent.getPayload(), "Soda");
+        assertEquals(commandEvent.getPayload()[0], "Soda");
         verify(resultQueue, times(1)).take();
 
+    }
+
+    private Runnable getDisplayRunnable() {
+        return () -> {
+            String dummySystemIn = String.format("%s%n%s%n", "1", "q");
+            System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
+            customer.promptUserOptions();
+
+            try {
+                when(resultQueue.take()).thenReturn(new OperationsEvent<>() {
+                    @Override
+                    public ResultOperationType getType() {
+                        return ResultOperationType.SUCCESS;
+                    }
+
+                    @Override
+                    public String getPayload() {
+                        return null;
+                    }
+                });
+
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
     }
 
     private Runnable getBuyRunnable() {
@@ -84,8 +116,8 @@ class CustomerTest {
                     }
 
                     @Override
-                    public Product getPayload() {
-                        return sodaProduct;
+                    public String getPayload() {
+                        return sodaProduct.toString();
                     }
                 });
 
@@ -95,7 +127,6 @@ class CustomerTest {
             }
         };
     }
-
 
     @AfterEach
     void tearDown() {

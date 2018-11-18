@@ -22,12 +22,12 @@ class UserInputUtilsTest {
 
     @Test
     void testCheckIsNumericCharacterReturnsTrue() {
-        assertTrue(UserInputUtils.INSTANCE.checkIsNumericCharacter("1"));
+        assertTrue(UserInputUtils.INSTANCE.checkIsInteger("1"));
     }
 
     @Test
     void testCheckIsNumericCharacterReturnsFalse() {
-        assertFalse(UserInputUtils.INSTANCE.checkIsNumericCharacter("abc"));
+        assertFalse(UserInputUtils.INSTANCE.checkIsInteger("abc"));
     }
 
     @Test

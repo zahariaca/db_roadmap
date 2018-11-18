@@ -1,7 +1,11 @@
 package com.zahariaca;
 
+import com.google.gson.reflect.TypeToken;
 import com.zahariaca.dao.Dao;
-import com.zahariaca.loader.ProductFileLoader;
+import com.zahariaca.dao.UserDao;
+import com.zahariaca.users.Supplier;
+import com.zahariaca.vendingmachine.OperatorInteractions;
+import com.zahariaca.filehandlers.ProductFileLoader;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.CLIRunnable;
 import com.zahariaca.threads.TransactionsWriterRunnable;
@@ -11,7 +15,8 @@ import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
 import com.zahariaca.threads.events.TransactionWriterOperationType;
 import com.zahariaca.utils.FileUtils;
-import com.zahariaca.vendingmachine.VendingMachineDao;
+import com.zahariaca.dao.VendingMachineDao;
+import com.zahariaca.vendingmachine.VendingMachineInteractions;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,8 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
-    private static final BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = new LinkedBlockingQueue<>(1);
-    private static final BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue = new LinkedBlockingQueue<>(1);
+    private static final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue = new LinkedBlockingQueue<>(1);
+    private static final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue = new LinkedBlockingQueue<>(1);
     private static final BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue = new LinkedBlockingQueue<>(10);
 
     public static void main(String[] args) {
@@ -42,18 +48,34 @@ public class Main {
 
         System.out.println("Starting up...");
 
-        File file = FileUtils.INSTANCE.getFile("persistence/products.json");
-        Set<Product> loadedProducts = ProductFileLoader.INSTANCE.loadFromFile(file);
+        File productsFile = FileUtils.INSTANCE.getFile("persistence/products.json");
+        Set<Product> loadedProducts = ProductFileLoader.INSTANCE.loadProductsFromFile(productsFile);
         OptionalInt largestIdOptional = loadedProducts.stream().mapToInt(Product::getUniqueId).max();
 
         Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
-        Dao<Product, String> vendingMachine = new VendingMachineDao(loadedProducts);
+        Dao<Product, Integer> vendingMachineDao = new VendingMachineDao(loadedProducts);
+
+        OperatorInteractions<Product, String[]> vendingMachine = new VendingMachineInteractions(vendingMachineDao);
+
+        File usersFile = FileUtils.INSTANCE.getFile("persistence/users.json");
+        Set<Supplier> loadedUsers = ProductFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<Supplier>>(){});
+
+        if (loadedUsers.isEmpty()) {
+            loadedUsers = new TreeSet<Supplier>();
+            loadedUsers.add(new Supplier("admin", "admin", true));
+            loadedUsers.add(new Supplier("azaharia", "password", true));
+        }
+
+        Dao<Supplier, String> usersDao = new UserDao(loadedUsers);
 
         logger.log(Level.INFO, ">O: Prerequisites created...");
-        new Thread(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine)).start();
+
+        new Thread(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, usersDao)).start();
         logger.log(Level.INFO, ">O: VendingMachine thread started.");
+
         new Thread(new CLIRunnable(commandQueue, resultQueue)).start();
         logger.log(Level.INFO, ">O: CLI thread started.");
+
         new Thread(new TransactionsWriterRunnable(transactionsQueue)).start();
         logger.log(Level.INFO, ">O: Transactions writer thread started.");
     }

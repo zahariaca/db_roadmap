@@ -1,25 +1,19 @@
 package com.zahariaca.dao;
 
-import com.zahariaca.exceptions.NoSuchProductException;
-import com.zahariaca.exceptions.ProductAlreadyExistsException;
-
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 03.11.2018
+ * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018
  */
 public interface Dao<T, K> {
-    void addProduct(T product) throws ProductAlreadyExistsException;
+    Optional<T> get(K id);
 
-    void displayProducts();
+    Set<T> getAll();
 
-    void deleteProduct(K uniqueId) throws NoSuchProductException;
+    void save(T t);
 
-    void changeProduct(T product) throws NoSuchProductException, ProductAlreadyExistsException;
+    void update(T t, String[] params);
 
-    T buyProduct(K productName) throws NoSuchProductException;
-
-    default Set<T> getProductsSet() {
-        return null;
-    }
+    void delete(T t);
 }

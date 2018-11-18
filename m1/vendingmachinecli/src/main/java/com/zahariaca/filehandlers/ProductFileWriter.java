@@ -1,8 +1,7 @@
-package com.zahariaca.loader;
+package com.zahariaca.filehandlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.zahariaca.pojo.Product;
 import com.zahariaca.utils.FileUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -22,18 +21,18 @@ import java.util.Set;
 public enum ProductFileWriter {
     INSTANCE;
 
-    Logger logger = LogManager.getLogger(ProductFileWriter.class);
+    private final Logger logger = LogManager.getLogger(ProductFileWriter.class);
+    private final GsonBuilder builder = new GsonBuilder();
+    private final Gson gson = builder.setPrettyPrinting()
+            .excludeFieldsWithoutExposeAnnotation()
+            .create();
 
-    public void handleFileWrite(Set<Product> vendingMachineProducts) throws IOException {
+    public void handleFileWrite(String fileLocation, Set<?> persistentData) throws IOException {
         logger.log(Level.DEBUG, "Starting write of products to persistent file.");
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        String data = gson.toJson(vendingMachineProducts);
-        data = data.replace("[", "[" + System.lineSeparator());
-        data = data.replace("},", "}," + System.lineSeparator());
-        data = data.replace("}]", "}" + System.lineSeparator() + "]");
 
-        File file = FileUtils.INSTANCE.getFile("persistence/products.json");
+        String data = gson.toJson(persistentData);
+
+        File file = FileUtils.INSTANCE.getFile(fileLocation);
         Path path = Paths.get(file.toURI());
         logger.log(Level.DEBUG, "Output file: {}", file.getAbsolutePath());
         Files.write(path, data.getBytes());

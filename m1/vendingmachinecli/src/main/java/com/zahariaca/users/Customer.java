@@ -16,20 +16,20 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class Customer implements User<BlockingQueue<OperationsEvent<OperationType, String>>, BlockingQueue<OperationsEvent<ResultOperationType, Product>>> {
+public class Customer implements User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> {
 
     private Logger logger = LogManager.getLogger(Customer.class);
-    private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue = null;
-    private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue = null;
+    private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue = null;
+    private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue = null;
     private Scanner scanner;
 
     @Override
-    public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String>> commandQueue) {
+    public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
         this.commandQueue = commandQueue;
     }
 
     @Override
-    public void setResultQueue(BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue) {
+    public void setResultQueue(BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
         this.resultQueue = resultQueue;
     }
 
@@ -59,7 +59,7 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
                 continue;
             }
 
-            if (!UserInputUtils.INSTANCE.checkIsNumericCharacter(userInput)) {
+            if (!UserInputUtils.INSTANCE.checkIsInteger(userInput)) {
                 System.out.println("Incorrect input. Try again.");
                 continue;
             }
@@ -95,14 +95,15 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private void sendDisplayEvent() throws InterruptedException {
-        addEventToCommandQueue(OperationType.DISPLAY, "");
+        addEventToCommandQueue(OperationType.DISPLAY, new String[]{""});
         System.out.println(Thread.currentThread() + " ++ Display products");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
+        resultQueue.take();
     }
 
     private void handleBuyOption() throws InterruptedException {
         String userOrder = promptForOrder();
-        addEventToCommandQueue(OperationType.BUY, userOrder);
+        addEventToCommandQueue(OperationType.BUY, new String[]{userOrder});
         System.out.println(Thread.currentThread() + " ++ Buy product");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.BUY);
 
@@ -115,7 +116,7 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private void handleResponse() throws InterruptedException {
-        OperationsEvent<ResultOperationType, Product> returnedResult = resultQueue.take();
+        OperationsEvent<ResultOperationType, String> returnedResult = resultQueue.take();
 
         if (returnedResult.getType().equals(ResultOperationType.RETURN_PRODUCT)) {
             System.out.println(String.format("CLIENT RECEIVED: >>> %s", returnedResult.getPayload()));
@@ -124,7 +125,7 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
         }
     }
 
-    private void addEventToCommandQueue(OperationType commandOperation, String userOrder) throws InterruptedException {
+    private void addEventToCommandQueue(OperationType commandOperation, String[] userOrder) throws InterruptedException {
         commandQueue.put(new OperationsEvent<>() {
             @Override
             public OperationType getType() {
@@ -132,7 +133,7 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
             }
 
             @Override
-            public String getPayload() {
+            public String[] getPayload() {
                 return userOrder;
             }
         });

@@ -9,5 +9,6 @@ public enum ResultOperationType {
     ADD_ERROR,
     CHANGE_ERROR,
     DELETE_ERROR,
-    PRODUCT_NOT_FOUND
+    PRODUCT_NOT_FOUND,
+    LOGIN_ERROR
 }

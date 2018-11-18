@@ -4,19 +4,18 @@ import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -26,72 +25,46 @@ import static org.mockito.Mockito.*;
  */
 class SupplierTest {
     private InputStream stdin;
-    private User customer;
+    private User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> supplier;
     private Product sodaProduct;
-    private BlockingQueue<OperationsEvent<OperationType, String>> commandQueue;
-    private BlockingQueue<OperationsEvent<ResultOperationType, Product>> resultQueue;
+    private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
+    private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
 
     @BeforeEach
     void init() {
         Product.setIdGenerator(new AtomicInteger(1000));
         stdin = System.in;
-        customer = new Supplier();
-        UUID supplierOneUUID = UUID.fromString("a3af93f2-0fff-42e0-b84c-6e507ece0264");
+        supplier = new Supplier();
+        String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
         sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);
-        BlockingQueue<OperationsEvent<ResultOperationType, Product>> realResultQueue = new LinkedBlockingQueue(1);
+        BlockingQueue<OperationsEvent<ResultOperationType, String>> realResultQueue = new LinkedBlockingQueue<>(1);
         resultQueue = spy(realResultQueue);
-        customer.setCommandQueue(commandQueue);
-        customer.setResultQueue(resultQueue);
+//        BlockingQueue mock = mock(LinkedBlockingQueue.class);
+        supplier.setCommandQueue(commandQueue);
+        supplier.setResultQueue(realResultQueue);
+
+
     }
 
     @Test
     void testEmptyQueue() {
-        customer = new Customer();
-        assertThrows(RuntimeException.class, () -> customer.promptUserOptions(), "Empty Queues results in RuntimeException");
+        supplier = new Supplier();
+        assertThrows(RuntimeException.class, () -> supplier.promptUserOptions(), "Empty Queues results in RuntimeException");
     }
 
     @Test
     void testAddOption() throws InterruptedException {
         Thread t = new Thread(getAddRunnable());
         t.start();
-        // TODO: FIXME when time permits...
+        // TODO: shouldn't use sleep... FIXME when time permits...
         Thread.sleep(1000);
-        OperationsEvent<OperationType, String> commandEvent = commandQueue.take();
+        OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.ADD);
         assertEquals(commandEvent.getPayload(), "{\"name\":\"NewProduct\",\"description\":\"New product description\",\"price\":5.67,\"uniqueId\":1002,\"supplierId\":\"a3af93f2-0fff-42e0-b84c-6e507ece0264\"}");
         verify(resultQueue, times(1)).take();
 
     }
-
-    @Test
-    void testDeleteOption() throws InterruptedException {
-        Thread t = new Thread(getDeleteRunnable());
-        t.start();
-        // TODO: FIXME when time permits...
-        Thread.sleep(1000);
-        OperationsEvent<OperationType, String> commandEvent = commandQueue.take();
-        assertEquals(commandEvent.getType(), OperationType.DELETE);
-        assertEquals(commandEvent.getPayload(), "1002");
-        verify(resultQueue, times(1)).take();
-        fail();
-    }
-
-    @Test
-    void testChangeOption() throws InterruptedException {
-        Thread t = new Thread(getChangeRunnable());
-        t.start();
-        // TODO: FIXME when time permits...
-        Thread.sleep(1000);
-        OperationsEvent<OperationType, String> commandEvent = commandQueue.take();
-        assertEquals(commandEvent.getType(), OperationType.CHANGE_PRODUCT);
-        assertEquals(commandEvent.getPayload(), "{\"name\":\"NewProduct\",\"description\":\"New product description\",\"price\":5.67,\"uniqueId\":1002,\"supplierId\":\"a3af93f2-0fff-42e0-b84c-6e507ece0264\"}");
-        verify(resultQueue, times(1)).take();
-        fail();
-
-    }
-
-
 
     private Runnable getAddRunnable() {
         return () -> {
@@ -102,36 +75,7 @@ class SupplierTest {
                     "5.67",
                     "q");
             System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
-            customer.promptUserOptions();
-
-            whenSuccess();
-        };
-    }
-
-    private Runnable getDeleteRunnable() {
-        return () -> {
-            String dummySystemIn = String.format("%s%n%s%n%s%n",
-                    "3",
-                    "1002", //uniqueId of product to delete
-                    "q");
-            System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
-            customer.promptUserOptions();
-
-            whenSuccess();
-        };
-    }
-
-    private Runnable getChangeRunnable() {
-        return () -> {
-            String dummySystemIn = String.format("%s%n%s%n%s%n%s%n%s%n%s%n",
-                    "4",
-                    "1002", //uniqueId of product to change
-                    "NewProduct",
-                    "New product description",
-                    "5.67",
-                    "q");
-            System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
-            customer.promptUserOptions();
+            supplier.promptUserOptions();
 
             whenSuccess();
         };
@@ -146,7 +90,7 @@ class SupplierTest {
                 }
 
                 @Override
-                public Product getPayload() {
+                public String getPayload() {
                     return null;
                 }
             });

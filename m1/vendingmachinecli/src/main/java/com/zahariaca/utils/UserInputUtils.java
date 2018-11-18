@@ -21,9 +21,20 @@ public enum UserInputUtils {
         return "quit".equalsIgnoreCase(userInput) || "q".equalsIgnoreCase(userInput);
     }
 
-    public boolean checkIsNumericCharacter(String userInput) {
+    public boolean checkIsInteger(String userInput) {
         try {
             Integer.parseInt(userInput);
+        } catch (NumberFormatException e) {
+            logger.log(Level.WARN, e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean checkIsFloat(String userInput) {
+        try {
+            Float.parseFloat(userInput);
         } catch (NumberFormatException e) {
             logger.log(Level.WARN, e.getMessage());
             return false;

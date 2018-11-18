@@ -10,4 +10,5 @@ public enum OperationType {
     DELETE,
     CHANGE_PRODUCT,
     QUIT,
+    USER_LOGIN
 }
