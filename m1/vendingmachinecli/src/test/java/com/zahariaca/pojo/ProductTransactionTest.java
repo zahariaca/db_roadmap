@@ -57,9 +57,10 @@ public class ProductTransactionTest {
         ProductTransaction deserializedProductTransaction = gson.fromJson(data, new TypeToken<ProductTransaction>() {
         }.getType());
 
-        assertEquals(deserializedProductTransaction.getProductUniqueId(), productId);
-        assertEquals(deserializedProductTransaction.getPrice(), price);
-        assertEquals(deserializedProductTransaction.getDate(), date.getTime());
+        assertEquals(deserializedProductTransaction.getProductUniqueId(), productTransaction.getProductUniqueId());
+        assertEquals(deserializedProductTransaction.getPrice(), productTransaction.getPrice());
+        assertEquals(deserializedProductTransaction.getDate(), productTransaction.getDate());
+        assertEquals(deserializedProductTransaction.hashCode(), productTransaction.hashCode());
         assertEquals(productTransaction, deserializedProductTransaction);
     }
 }

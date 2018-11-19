@@ -3,7 +3,6 @@ package com.zahariaca.threads;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.zahariaca.cli.SupplierCli;
 import com.zahariaca.dao.Dao;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
@@ -14,7 +13,7 @@ import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
 import com.zahariaca.threads.events.TransactionWriterOperationType;
-import com.zahariaca.users.User;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.utils.FileUtils;
 import com.zahariaca.vendingmachine.OperatorInteractions;
 import org.apache.logging.log4j.Level;
@@ -58,20 +57,20 @@ public class VendingMachineRunnable implements Runnable {
         try {
             while (continueCondition) {
                 logger.log(Level.DEBUG, ">O: infinite loop enter.");
-                OperationsEvent<OperationType, String[]> receivedEvent = commandQueue.take();
-                if (receivedEvent.getType().equals(OperationType.USER_LOGIN)) {
-                    handleUserLogin(receivedEvent);
-                } else if (receivedEvent.getType().equals(OperationType.DISPLAY)) {
-                    handleDisplayProcess(receivedEvent);
-                } else if (receivedEvent.getType().equals(OperationType.BUY)) {
-                    handleBuyProcess(receivedEvent);
-                } else if (receivedEvent.getType().equals(OperationType.ADD)) {
-                    handleAddEvent(receivedEvent.getPayload());
-                } else if (receivedEvent.getType().equals(OperationType.DELETE)) {
-                    handleDeleteEvent(receivedEvent.getPayload());
-                } else if (receivedEvent.getType().equals(OperationType.CHANGE_PRODUCT)) {
-                    handleChangeEvent(receivedEvent.getPayload());
-                } else if (receivedEvent.getType().equals(OperationType.QUIT)) {
+                OperationsEvent<OperationType, String[]> receivedCommandEvent = commandQueue.take();
+                if (receivedCommandEvent.getType().equals(OperationType.USER_LOGIN)) {
+                    handleUserLogin(receivedCommandEvent);
+                } else if (receivedCommandEvent.getType().equals(OperationType.DISPLAY)) {
+                    handleDisplayProcess(receivedCommandEvent);
+                } else if (receivedCommandEvent.getType().equals(OperationType.BUY)) {
+                    handleBuyProcess(receivedCommandEvent);
+                } else if (receivedCommandEvent.getType().equals(OperationType.ADD)) {
+                    handleAddEvent(receivedCommandEvent.getPayload());
+                } else if (receivedCommandEvent.getType().equals(OperationType.DELETE)) {
+                    handleDeleteEvent(receivedCommandEvent.getPayload());
+                } else if (receivedCommandEvent.getType().equals(OperationType.CHANGE_PRODUCT)) {
+                    handleChangeEvent(receivedCommandEvent.getPayload());
+                } else if (receivedCommandEvent.getType().equals(OperationType.QUIT)) {
                     handleShutdown();
                 }
             }

@@ -1,7 +1,6 @@
-package com.zahariaca.users;
+package com.zahariaca.pojo.users;
 
 import com.google.gson.annotations.Expose;
-import com.zahariaca.cli.SupplierCli;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

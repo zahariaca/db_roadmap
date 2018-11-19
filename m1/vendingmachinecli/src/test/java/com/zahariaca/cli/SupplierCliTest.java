@@ -4,7 +4,7 @@ import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.users.User;
+import com.zahariaca.pojo.users.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

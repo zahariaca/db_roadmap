@@ -2,10 +2,9 @@ package com.zahariaca;
 
 import com.google.gson.reflect.TypeToken;
 import com.zahariaca.cli.PrimaryCli;
-import com.zahariaca.cli.SupplierCli;
 import com.zahariaca.dao.Dao;
 import com.zahariaca.dao.UserDao;
-import com.zahariaca.users.User;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.vendingmachine.OperatorInteractions;
 import com.zahariaca.filehandlers.PersistenceFileLoader;
 import com.zahariaca.pojo.Product;

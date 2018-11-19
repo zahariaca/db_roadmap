@@ -2,7 +2,7 @@ package com.zahariaca.filehandlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.zahariaca.users.User;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.utils.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

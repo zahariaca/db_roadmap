@@ -55,9 +55,9 @@ class ProductTest {
         String data = gson.toJson(productOne);
         System.out.println(data);
 
-        Product deserializedProductTransaction = gson.fromJson(data, new TypeToken<Product>(){}.getType());
+        Product deserializedProduct = gson.fromJson(data, new TypeToken<Product>(){}.getType());
 
-        assertEquals(productOne, deserializedProductTransaction);
-        assertEquals(productOne.hashCode(), deserializedProductTransaction.hashCode());
+        assertEquals(productOne, deserializedProduct);
+        assertEquals(productOne.hashCode(), deserializedProduct.hashCode());
     }
 }

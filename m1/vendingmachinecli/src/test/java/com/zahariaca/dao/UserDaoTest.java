@@ -1,17 +1,12 @@
 package com.zahariaca.dao;
 
-import com.zahariaca.cli.SupplierCli;
-import com.zahariaca.threads.events.OperationType;
-import com.zahariaca.threads.events.OperationsEvent;
-import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.users.User;
+import com.zahariaca.pojo.users.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.BlockingQueue;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

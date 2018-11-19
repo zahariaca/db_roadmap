@@ -1,13 +1,11 @@
 package com.zahariaca.cli;
 
-import com.google.gson.annotations.Expose;
 import com.zahariaca.exceptions.UserInUnsafeStateException;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.users.User;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.utils.UserInputUtils;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

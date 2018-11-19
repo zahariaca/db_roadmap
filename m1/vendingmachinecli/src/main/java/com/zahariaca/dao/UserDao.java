@@ -1,7 +1,6 @@
 package com.zahariaca.dao;
 
-import com.zahariaca.cli.SupplierCli;
-import com.zahariaca.users.User;
+import com.zahariaca.pojo.users.User;
 
 import java.util.Optional;
 import java.util.Set;
