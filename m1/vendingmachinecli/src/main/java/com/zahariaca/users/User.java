@@ -11,4 +11,8 @@ public interface User<T, K> {
     void setCommandQueue(T commandQueue);
 
     void setResultQueue(K resultQueue);
+
+    default String getUsername() {
+        return "";
+    }
 }

@@ -2,10 +2,7 @@ package com.zahariaca.dao;
 
 import com.zahariaca.pojo.Product;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018
@@ -14,7 +11,11 @@ public class VendingMachineDao implements Dao<Product, Integer> {
     private Set<Product> products;
 
     public VendingMachineDao(Set<Product> products) {
-        this.products = products;
+        if (products != null) {
+            this.products = products;
+        } else {
+            this.products = Collections.emptySet();
+        }
     }
 
     @Override
@@ -48,7 +49,7 @@ public class VendingMachineDao implements Dao<Product, Integer> {
         String productId = Objects.requireNonNull(
                 params[3],
                 "Product Unique ID cannot be null");
-        String supplierID = Objects.requireNonNullElse(
+        String supplierID = Objects.requireNonNull(
                 params[4],
                 "Supplier Id cannot be null");
 

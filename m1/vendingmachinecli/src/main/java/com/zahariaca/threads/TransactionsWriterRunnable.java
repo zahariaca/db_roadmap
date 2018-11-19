@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -54,7 +56,10 @@ public class TransactionsWriterRunnable implements Runnable {
         }
 
         Product product = transactionWriterOperation.getPayload();
-        ProductTransaction productTransaction = new ProductTransaction(product.getUniqueId(), product.getPrice());
+        ProductTransaction productTransaction = new ProductTransaction(
+                product.getUniqueId(),
+                product.getPrice(),
+                Date.from(Instant.now()).getTime());
 
         String transactionString = transformToJsonString(productTransaction);
 

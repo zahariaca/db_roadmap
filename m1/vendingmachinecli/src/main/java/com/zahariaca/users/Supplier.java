@@ -18,17 +18,18 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-// TODO: refactor, to much duplicate code between Customer and Supplier, extract in parent class?
 public class Supplier implements User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>>, Comparable<Supplier> {
     @Expose(serialize = false)
     private final Logger logger = LogManager.getLogger(Supplier.class);
 
+    //TODO: username assumed unique, no mechanism to add users, if added unique username must be guarded for
     @Expose
     private String username;
     @Expose
     private String userPassword;
     @Expose
     private String userId;
+    // isSupplier has no usage for now.
     @Expose
     private boolean isSupplier;
 
@@ -41,19 +42,12 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
     @Expose(serialize = false)
     private volatile boolean continueCondition = true;
 
-    public Supplier() {
-    }
-
     public Supplier(String username, String userPassword, boolean isSupplier) {
         this.username = username;
         this.userPassword = DigestUtils.sha256Hex(userPassword);
         this.userId = DigestUtils.sha256Hex(username);
         this.isSupplier = isSupplier;
     }
-
-    // TODO: hardcoded supplier ID. Temporary, should be removed soon!!
-    // FIXME
-    private String supplierId = "a3af93f2-0fff-42e0-b84c-6e507ece0264";
 
     @Override
     public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
@@ -136,7 +130,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private void sendDisplayEvent() throws InterruptedException {
-        addEventToCommandQueue(OperationType.DISPLAY, new String[]{""});
+        addEventToCommandQueue(OperationType.DISPLAY, new String[]{getUserId()});
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
         resultQueue.take();
     }
@@ -147,11 +141,12 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
 
         addEventToCommandQueue(OperationType.ADD, newProduct);
 
-        System.out.println("Adding product: " + newProduct);
+        System.out.println("Adding product: " + newProduct[0]);
+        OperationsEvent<ResultOperationType, String> result = resultQueue.take();
 
-        if (resultQueue.take().getType().equals(ResultOperationType.SUCCESS)) {
+        if (result.getType().equals(ResultOperationType.SUCCESS)) {
             System.out.println("Successfully added product to VendingMachine!");
-        } else if (resultQueue.take().getType().equals(ResultOperationType.ADD_ERROR)) {
+        } else if (result.getType().equals(ResultOperationType.ADD_ERROR)) {
             System.out.println("Could not add product. Try again...");
         }
     }
@@ -173,7 +168,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
             productPrice = scanner.nextLine();
         }
 
-        return new String[]{productName, productDescription, productPrice, supplierId};
+        return new String[]{productName, productDescription, productPrice, getUserId()};
     }
 
     private void handleDeleteProduct() throws InterruptedException {
@@ -215,34 +210,44 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private String[] promptForChange() {
+        String currentScan;
         String productUniqueId;
         String productName;
         String productDescription;
         String productPrice;
+        String userId;
 
         System.out.println("Unique ID of the product that should be changed: ");
-        productUniqueId = scanner.nextLine();
+        currentScan = scanner.nextLine();
+        productUniqueId = currentScan.isEmpty() ? null : currentScan;
 
-        while (!UserInputUtils.INSTANCE.checkIsInteger(productUniqueId)) {
+        while (productUniqueId == null || !UserInputUtils.INSTANCE.checkIsInteger(productUniqueId)) {
             System.out.println("Incorrect unique id. Please checked the displayed products and input a integer. (e.g: 1000)");
-            productUniqueId = scanner.nextLine();
+            currentScan = scanner.nextLine();
+            productUniqueId = currentScan.isEmpty() ? null : currentScan;
         }
 
         System.out.println("Name of new product (to keep old value, hit ENTER): ");
-        productName = scanner.nextLine();
+        currentScan = scanner.nextLine();
+        productName = currentScan.isEmpty() ? null : currentScan;
         System.out.println("Description of new product (to keep old value, hit ENTER): ");
-        productDescription = scanner.nextLine();
+        currentScan = scanner.nextLine();
+        productDescription = currentScan.isEmpty() ? null : currentScan;
         System.out.println("Price of new product (to keep old value, hit ENTER): ");
-        productPrice = scanner.nextLine();
+        currentScan = scanner.nextLine();
+        productPrice = currentScan.isEmpty() ? null : currentScan;
 
-        if (!productPrice.isEmpty()) {
+        if (productPrice == null || !productPrice.isEmpty()) {
             while (!UserInputUtils.INSTANCE.checkIsFloat(productPrice)) {
                 System.out.println("Incorrect price. Please input a float. (e.g: 5.67)");
-                productPrice = scanner.nextLine();
+                currentScan = scanner.nextLine();
+                productPrice = currentScan.isEmpty() ? null : currentScan;
             }
         }
 
-        return new String[]{productName, productDescription, productPrice, productUniqueId, supplierId};
+        userId = getUserId().isEmpty() ? null : getUserId();
+
+        return new String[]{productName, productDescription, productPrice, productUniqueId, userId};
     }
 
     private void addEventToCommandQueue(OperationType commandOperation, String[] userOrder) throws InterruptedException {

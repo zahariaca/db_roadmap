@@ -1,8 +1,13 @@
 package com.zahariaca.pojo;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,5 +43,21 @@ class ProductTest {
         assertNotEquals(productOne, productTwo);
         assertFalse(productOne.hashCode() == productTwo.hashCode());
         assertFalse(productOne.getUniqueId() == productTwo.getUniqueId());
+    }
+
+    @Test
+    void testCorrectSerialization() {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.setPrettyPrinting()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+
+        String data = gson.toJson(productOne);
+        System.out.println(data);
+
+        Product deserializedProductTransaction = gson.fromJson(data, new TypeToken<Product>(){}.getType());
+
+        assertEquals(productOne, deserializedProductTransaction);
+        assertEquals(productOne.hashCode(), deserializedProductTransaction.hashCode());
     }
 }

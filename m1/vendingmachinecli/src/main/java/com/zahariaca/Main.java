@@ -5,7 +5,7 @@ import com.zahariaca.dao.Dao;
 import com.zahariaca.dao.UserDao;
 import com.zahariaca.users.Supplier;
 import com.zahariaca.vendingmachine.OperatorInteractions;
-import com.zahariaca.filehandlers.ProductFileLoader;
+import com.zahariaca.filehandlers.PersistenceFileLoader;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.CLIRunnable;
 import com.zahariaca.threads.TransactionsWriterRunnable;
@@ -49,7 +49,7 @@ public class Main {
         System.out.println("Starting up...");
 
         File productsFile = FileUtils.INSTANCE.getFile("persistence/products.json");
-        Set<Product> loadedProducts = ProductFileLoader.INSTANCE.loadProductsFromFile(productsFile);
+        Set<Product> loadedProducts = PersistenceFileLoader.INSTANCE.loadProductsFromFile(productsFile);
         OptionalInt largestIdOptional = loadedProducts.stream().mapToInt(Product::getUniqueId).max();
 
         Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
@@ -58,7 +58,7 @@ public class Main {
         OperatorInteractions<Product, String[]> vendingMachine = new VendingMachineInteractions(vendingMachineDao);
 
         File usersFile = FileUtils.INSTANCE.getFile("persistence/users.json");
-        Set<Supplier> loadedUsers = ProductFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<Supplier>>(){});
+        Set<Supplier> loadedUsers = PersistenceFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<Supplier>>(){});
 
         if (loadedUsers.isEmpty()) {
             loadedUsers = new TreeSet<Supplier>();

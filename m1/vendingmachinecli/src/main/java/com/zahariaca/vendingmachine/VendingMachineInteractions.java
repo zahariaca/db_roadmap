@@ -51,7 +51,7 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
         Optional<Product> product = vendingMachineDao.get(Integer.valueOf(ids[0]));
 
         if (product.isPresent()) {
-            if ( product.get().getSupplierId().equals(ids[1])) {
+            if (!product.get().getSupplierId().equals(ids[1])) {
                 throw new IllegalProductOperation("Product cannot be modified by other suppliers.");
             }
 

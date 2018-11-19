@@ -2,6 +2,7 @@ package com.zahariaca.vendingmachine;
 
 import com.zahariaca.dao.Dao;
 import com.zahariaca.dao.VendingMachineDao;
+import com.zahariaca.dao.VendingMachineDaoTest;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
@@ -15,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.fail;
@@ -44,7 +45,7 @@ class VendingMachineInteractionsTest {
         String supplierTwoUUID = "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05";
         productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, supplierTwoUUID);
-        productSet = new HashSet<>();
+        productSet = new TreeSet<>();
         productSet.add(productOne);
         productSet.add(productTwo);
         vendingMachineDao = new VendingMachineDao(productSet);

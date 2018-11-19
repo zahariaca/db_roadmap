@@ -7,22 +7,23 @@ import com.zahariaca.dao.Dao;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
-import com.zahariaca.filehandlers.ProductFileWriter;
+import com.zahariaca.filehandlers.PersistenceFileWriter;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
 import com.zahariaca.threads.events.TransactionWriterOperationType;
 import com.zahariaca.users.Supplier;
+import com.zahariaca.utils.FileUtils;
 import com.zahariaca.vendingmachine.OperatorInteractions;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -59,7 +60,7 @@ public class VendingMachineRunnable implements Runnable {
                 if (receivedEvent.getType().equals(OperationType.USER_LOGIN)) {
                     handleUserLogin(receivedEvent);
                 } else if (receivedEvent.getType().equals(OperationType.DISPLAY)) {
-                    handleDisplayProcess();
+                    handleDisplayProcess(receivedEvent);
                 } else if (receivedEvent.getType().equals(OperationType.BUY)) {
                     handleBuyProcess(receivedEvent);
                 } else if (receivedEvent.getType().equals(OperationType.ADD)) {
@@ -92,8 +93,12 @@ public class VendingMachineRunnable implements Runnable {
         }
     }
 
-    private void handleDisplayProcess() throws InterruptedException {
-        vendingMachine.displayProducts();
+    private void handleDisplayProcess(OperationsEvent<OperationType, String[]> receivedEvent) throws InterruptedException {
+        if (receivedEvent.getPayload()[0].equals("")) {
+            vendingMachine.displayProducts();
+        } else {
+            vendingMachine.displayProducts(receivedEvent.getPayload());
+        }
         addEventToResultQueue(ResultOperationType.SUCCESS, null);
     }
 
@@ -155,8 +160,10 @@ public class VendingMachineRunnable implements Runnable {
 
     private void handleFinalOperation() {
         try {
-            ProductFileWriter.INSTANCE.handleFileWrite("persistence/products.json", vendingMachine.getProductsSet());
-            ProductFileWriter.INSTANCE.handleFileWrite("persistence/users.json", usersDao.getAll());
+            File productsFile = FileUtils.INSTANCE.getFile("persistence/products.json");
+            PersistenceFileWriter.INSTANCE.handleFileWrite(productsFile, vendingMachine.getProductsSet());
+            File usersFile = FileUtils.INSTANCE.getFile("persistence/users.json");
+            PersistenceFileWriter.INSTANCE.handleFileWrite(usersFile, usersDao.getAll());
             System.out.println("Application terminating gracefully!");
             System.out.println("Goodbye!");
             continueCondition = false;

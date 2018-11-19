@@ -22,10 +22,10 @@ import java.util.TreeSet;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public enum ProductFileLoader {
+public enum PersistenceFileLoader {
     INSTANCE;
 
-    Logger logger = LogManager.getLogger(ProductFileLoader.class);
+    Logger logger = LogManager.getLogger(PersistenceFileLoader.class);
 
     public Set<Product> loadProductsFromFile(File file) {
         logger.log(Level.DEBUG, "Reading from file: {}", file.getAbsolutePath());

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-class ProductFileLoaderTest {
+class PersistenceFileLoaderTest {
     private Product productOne;
     private Product productTwo;
 
@@ -39,7 +38,7 @@ class ProductFileLoaderTest {
             fail("File not found.");
         }
 
-        Set<Product> testSet = ProductFileLoader.INSTANCE.loadProductsFromFile(file);
+        Set<Product> testSet = PersistenceFileLoader.INSTANCE.loadProductsFromFile(file);
         assertTrue(!testSet.isEmpty());
         assertTrue(testSet.size() == 2);
 

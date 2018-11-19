@@ -4,11 +4,10 @@ import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import org.junit.Ignore;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -16,8 +15,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -29,27 +27,42 @@ class SupplierTest {
     private Product sodaProduct;
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
+    private String supplierOneUUID;
 
     @BeforeEach
     void init() {
         Product.setIdGenerator(new AtomicInteger(1000));
         stdin = System.in;
-        supplier = new Supplier();
-        String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+        supplier = new Supplier("admin", "admin", true);
+        supplierOneUUID = ((Supplier) supplier).getUserId();
         sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);
         BlockingQueue<OperationsEvent<ResultOperationType, String>> realResultQueue = new LinkedBlockingQueue<>(1);
         resultQueue = spy(realResultQueue);
-//        BlockingQueue mock = mock(LinkedBlockingQueue.class);
         supplier.setCommandQueue(commandQueue);
-        supplier.setResultQueue(realResultQueue);
+        supplier.setResultQueue(resultQueue);
 
 
     }
 
     @Test
+    void testCompareToReturnsNonZeroCode() {
+        assertFalse(0 ==((Supplier) supplier).compareTo(new Supplier("test", "test", false)));
+    }
+
+    @Test
+    void testCompareToReturnsZeroCode() {
+        assertTrue(0 ==((Supplier) supplier).compareTo(new Supplier("admin", "admin", true)));
+    }
+
+    @Test
+    void testIdIsHashOfUsername() {
+        assertEquals(((Supplier) supplier).getUserId(),(DigestUtils.sha256Hex(((Supplier) supplier).getUsername())));
+    }
+
+    @Test
     void testEmptyQueue() {
-        supplier = new Supplier();
+        supplier = new Supplier("admin", "admin", true);
         assertThrows(RuntimeException.class, () -> supplier.promptUserOptions(), "Empty Queues results in RuntimeException");
     }
 
@@ -58,10 +71,13 @@ class SupplierTest {
         Thread t = new Thread(getAddRunnable());
         t.start();
         // TODO: shouldn't use sleep... FIXME when time permits...
-        Thread.sleep(1000);
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.ADD);
-        assertEquals(commandEvent.getPayload(), "{\"name\":\"NewProduct\",\"description\":\"New product description\",\"price\":5.67,\"uniqueId\":1002,\"supplierId\":\"a3af93f2-0fff-42e0-b84c-6e507ece0264\"}");
+        assertEquals(commandEvent.getPayload()[0], "NewProduct");
+        assertEquals(commandEvent.getPayload()[1], "New product description");
+        assertEquals(commandEvent.getPayload()[2], "5.67");
+        assertEquals(commandEvent.getPayload()[3], supplierOneUUID);
+        Thread.sleep(1000);
         verify(resultQueue, times(1)).take();
 
     }
@@ -94,13 +110,10 @@ class SupplierTest {
                     return null;
                 }
             });
-
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
 
     @AfterEach
     void tearDown() {

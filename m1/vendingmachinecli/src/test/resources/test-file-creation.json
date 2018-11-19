@@ -1,0 +1,14 @@
+[
+  {
+    "username": "admin",
+    "userPassword": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "userId": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "isSupplier": true
+  },
+  {
+    "username": "tester",
+    "userPassword": "9bba5c53a0545e0c80184b946153c9f58387e3bd1d4ee35740f29ac2e718b019",
+    "userId": "9bba5c53a0545e0c80184b946153c9f58387e3bd1d4ee35740f29ac2e718b019",
+    "isSupplier": false
+  }
+]
