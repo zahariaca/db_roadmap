@@ -33,12 +33,12 @@ class UserInputUtilsTest {
     @Test
     void testConstructPromptMessage() {
         String resultedConstruct = UserInputUtils.INSTANCE.constructPromptMessage("%nSelect an operation:%n",
-                "   [1] Login as Customer. %n",
-                "   [2] Login as Supplier. %n",
+                "   [1] Login as CustomerCli. %n",
+                "   [2] Login as SupplierCli. %n",
                 "   [q/quit] to end process. %n");
         String builder = "%nSelect an operation:%n" +
-                "   [1] Login as Customer. %n" +
-                "   [2] Login as Supplier. %n" +
+                "   [1] Login as CustomerCli. %n" +
+                "   [2] Login as SupplierCli. %n" +
                 "   [q/quit] to end process. %n";
         assertEquals(builder, resultedConstruct);
     }

@@ -26,12 +26,12 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
 
     @Override
     public void displayProducts() {
-        vendingMachineDao.getAll().forEach(p -> System.out.println(p.toString()));
+        vendingMachineDao.getAll().forEach(product -> System.out.println(product.toString()));
     }
 
     @Override
     public void displayProducts(String[] supplierId) {
-        vendingMachineDao.getAll().stream().filter(p -> p.getUniqueId() == Integer.valueOf(supplierId[0])).forEach(p -> System.out.println(p.toString()));
+        vendingMachineDao.getAll().stream().filter(product -> product.getSupplierId().equals(supplierId[0])).forEach(product -> System.out.println(product.toString()));
     }
 
     @Override

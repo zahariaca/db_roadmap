@@ -1,20 +1,17 @@
-package com.zahariaca.users;
+package com.zahariaca.cli;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapterFactory;
 import com.zahariaca.exceptions.UserInUnsafeStateException;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
+import com.zahariaca.users.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -25,17 +22,20 @@ import static org.mockito.Mockito.*;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 14.11.2018
  */
-class CustomerTest {
+class CustomerCliTest {
     private InputStream stdin;
-    private User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> customer;
+    private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>,
+            BlockingQueue<OperationsEvent<ResultOperationType, String>>> customer;
     private Product sodaProduct;
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
+    private final User user = new User();
 
     @BeforeEach
     void init() {
         stdin = System.in;
-        customer = new Customer();
+
+        customer = new CustomerCli(user);
         String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
         sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);
@@ -47,7 +47,7 @@ class CustomerTest {
 
     @Test
     void testEmptyQueue() {
-        customer = new Customer();
+        customer = new CustomerCli(user);
         assertThrows(UserInUnsafeStateException.class, () -> customer.promptUserOptions(), "Empty Queues results in RuntimeException");
     }
 

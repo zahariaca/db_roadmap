@@ -1,9 +1,9 @@
 package com.zahariaca.dao;
 
+import com.zahariaca.cli.SupplierCli;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.users.Supplier;
 import com.zahariaca.users.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,18 +20,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 19.11.2018
  */
 public class UserDaoTest {
-    private Set<Supplier> suppliers;
-    private Dao<Supplier, String> userDao;
-    private User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> supplier;
+    private Set<User> supplierClis;
+    private Dao<User, String> userDao;
+    private User supplier;
 
 
     @BeforeEach
     void init() {
-        suppliers = new TreeSet<>();
-        supplier = new Supplier("admin", "admin", true);
-        suppliers.add((Supplier) supplier);
-        suppliers.add(new Supplier("tester", "tester", false));
-        userDao = new UserDao(suppliers);
+        supplierClis = new TreeSet<>();
+        supplier = new User("admin", "admin", true);
+        supplierClis.add(supplier);
+        supplierClis.add(new User("tester", "tester", false));
+        userDao = new UserDao(supplierClis);
     }
 
     @Test
@@ -46,26 +46,26 @@ public class UserDaoTest {
 
     @Test
     void testGetAll() {
-        assertEquals(suppliers, userDao.getAll());
+        assertEquals(supplierClis, userDao.getAll());
     }
 
     @Test
     void testSaveThrowsException() {
         assertThrows(UnsupportedOperationException.class,
-                () -> userDao.save(new Supplier("new", "pass", true)));
+                () -> userDao.save(new User("new", "pass", true)));
     }
 
     @Test
     void testUpdateThrowsException() {
         assertThrows(UnsupportedOperationException.class,
                 () -> userDao.update(
-                        new Supplier("new", "pass", true),
+                        new User("new", "pass", true),
                         new String[]{}));
     }
 
     @Test
     void testDeleteThrowsException() {
         assertThrows(UnsupportedOperationException.class,
-                () -> userDao.delete(new Supplier("new", "pass", true)));
+                () -> userDao.delete(new User("new", "pass", true)));
     }
 }

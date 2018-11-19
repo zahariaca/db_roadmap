@@ -1,9 +1,10 @@
-package com.zahariaca.users;
+package com.zahariaca.cli;
 
 import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
+import com.zahariaca.users.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,49 +22,56 @@ import static org.mockito.Mockito.*;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 14.11.2018
  */
-class SupplierTest {
+//TODO: Split in SupplierCli and SupplierCli
+class SupplierCliTest {
     private InputStream stdin;
-    private User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> supplier;
+    private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>,
+            BlockingQueue<OperationsEvent<ResultOperationType, String>>> supplierCli;
     private Product sodaProduct;
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
     private String supplierOneUUID;
+    private final User supplier = new User("admin", "admin", true);
 
     @BeforeEach
     void init() {
         Product.setIdGenerator(new AtomicInteger(1000));
         stdin = System.in;
-        supplier = new Supplier("admin", "admin", true);
-        supplierOneUUID = ((Supplier) supplier).getUserId();
+
+        supplierCli = new SupplierCli(supplier);
+        supplierOneUUID = supplier.getUserId();
         sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);
         BlockingQueue<OperationsEvent<ResultOperationType, String>> realResultQueue = new LinkedBlockingQueue<>(1);
         resultQueue = spy(realResultQueue);
-        supplier.setCommandQueue(commandQueue);
-        supplier.setResultQueue(resultQueue);
+        supplierCli.setCommandQueue(commandQueue);
+        supplierCli.setResultQueue(resultQueue);
 
 
     }
 
     @Test
+        //TODO: Move to User tests
     void testCompareToReturnsNonZeroCode() {
-        assertFalse(0 ==((Supplier) supplier).compareTo(new Supplier("test", "test", false)));
+        assertFalse(0 == supplier.compareTo(new User("test", "test", false)));
     }
 
     @Test
+        //TODO: Move to User tests
     void testCompareToReturnsZeroCode() {
-        assertTrue(0 ==((Supplier) supplier).compareTo(new Supplier("admin", "admin", true)));
+        assertTrue(0 == supplier.compareTo(new User("admin", "admin", true)));
     }
 
     @Test
+        //TODO: Move to User tests
     void testIdIsHashOfUsername() {
-        assertEquals(((Supplier) supplier).getUserId(),(DigestUtils.sha256Hex(((Supplier) supplier).getUsername())));
+        assertEquals(supplier.getUserId(), (DigestUtils.sha256Hex(supplier.getUsername())));
     }
 
     @Test
     void testEmptyQueue() {
-        supplier = new Supplier("admin", "admin", true);
-        assertThrows(RuntimeException.class, () -> supplier.promptUserOptions(), "Empty Queues results in RuntimeException");
+        supplierCli = new SupplierCli(supplier);
+        assertThrows(RuntimeException.class, () -> supplierCli.promptUserOptions(), "Empty Queues results in RuntimeException");
     }
 
     @Test
@@ -91,7 +99,7 @@ class SupplierTest {
                     "5.67",
                     "q");
             System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
-            supplier.promptUserOptions();
+            supplierCli.promptUserOptions();
 
             whenSuccess();
         };

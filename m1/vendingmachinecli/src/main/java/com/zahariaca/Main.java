@@ -1,13 +1,15 @@
 package com.zahariaca;
 
 import com.google.gson.reflect.TypeToken;
+import com.zahariaca.cli.PrimaryCli;
+import com.zahariaca.cli.SupplierCli;
 import com.zahariaca.dao.Dao;
 import com.zahariaca.dao.UserDao;
-import com.zahariaca.users.Supplier;
+import com.zahariaca.users.User;
 import com.zahariaca.vendingmachine.OperatorInteractions;
 import com.zahariaca.filehandlers.PersistenceFileLoader;
 import com.zahariaca.pojo.Product;
-import com.zahariaca.threads.CLIRunnable;
+import com.zahariaca.threads.CliRunnable;
 import com.zahariaca.threads.TransactionsWriterRunnable;
 import com.zahariaca.threads.VendingMachineRunnable;
 import com.zahariaca.threads.events.OperationType;
@@ -37,6 +39,7 @@ public class Main {
     private static final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue = new LinkedBlockingQueue<>(1);
     private static final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue = new LinkedBlockingQueue<>(1);
     private static final BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue = new LinkedBlockingQueue<>(10);
+    private static PrimaryCli primaryCli;
 
     public static void main(String[] args) {
         logger.log(Level.INFO, ">O: Application startup...");
@@ -58,22 +61,24 @@ public class Main {
         OperatorInteractions<Product, String[]> vendingMachine = new VendingMachineInteractions(vendingMachineDao);
 
         File usersFile = FileUtils.INSTANCE.getFile("persistence/users.json");
-        Set<Supplier> loadedUsers = PersistenceFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<Supplier>>(){});
+        Set<User> loadedUsers = PersistenceFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<User>>(){});
 
+        // TODO: Delete this temporary code
         if (loadedUsers.isEmpty()) {
-            loadedUsers = new TreeSet<Supplier>();
-            loadedUsers.add(new Supplier("admin", "admin", true));
-            loadedUsers.add(new Supplier("azaharia", "password", true));
+            loadedUsers = new TreeSet<User>();
+            loadedUsers.add(new User("admin", "admin", true));
+            loadedUsers.add(new User("azaharia", "password", true));
         }
 
-        Dao<Supplier, String> usersDao = new UserDao(loadedUsers);
+        Dao<User, String> usersDao = new UserDao(loadedUsers);
 
         logger.log(Level.INFO, ">O: Prerequisites created...");
 
         new Thread(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, usersDao)).start();
         logger.log(Level.INFO, ">O: VendingMachine thread started.");
 
-        new Thread(new CLIRunnable(commandQueue, resultQueue)).start();
+        primaryCli = new PrimaryCli(commandQueue, resultQueue);
+        new Thread(new CliRunnable(primaryCli)).start();
         logger.log(Level.INFO, ">O: CLI thread started.");
 
         new Thread(new TransactionsWriterRunnable(transactionsQueue)).start();

@@ -3,6 +3,7 @@ package com.zahariaca.threads;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.zahariaca.cli.SupplierCli;
 import com.zahariaca.dao.Dao;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
@@ -13,7 +14,7 @@ import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
 import com.zahariaca.threads.events.TransactionWriterOperationType;
-import com.zahariaca.users.Supplier;
+import com.zahariaca.users.User;
 import com.zahariaca.utils.FileUtils;
 import com.zahariaca.vendingmachine.OperatorInteractions;
 import org.apache.logging.log4j.Level;
@@ -36,13 +37,14 @@ public class VendingMachineRunnable implements Runnable {
     private final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
     private final BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue;
-    private final Dao<Supplier, String> usersDao;
+    private final Dao<User, String> usersDao;
     private volatile boolean continueCondition = true;
 
     public VendingMachineRunnable(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
                                   BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue,
                                   BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue,
-                                  OperatorInteractions<Product, String[]> vendingMachine, Dao<Supplier, String> usersDao) {
+                                  OperatorInteractions<Product, String[]> vendingMachine,
+                                  Dao<User, String> usersDao) {
         this.commandQueue = commandQueue;
         this.transactionsQueue = transactionsQueue;
         this.vendingMachine = vendingMachine;
@@ -84,7 +86,7 @@ public class VendingMachineRunnable implements Runnable {
         String username = receivedEvent.getPayload()[0];
         String password = receivedEvent.getPayload()[1];
 
-        Optional<Supplier> userOptional = usersDao.get(username);
+        Optional<User> userOptional = usersDao.get(username);
 
         if (userOptional.isPresent() && userOptional.get().getUserPassword().equals(password)) {
             addEventToResultQueue(ResultOperationType.SUCCESS, serializeJson(userOptional.get()));
@@ -115,7 +117,7 @@ public class VendingMachineRunnable implements Runnable {
         String productName = Objects.requireNonNull(payload[0], "Name cannot be null");
         String productDescription = Objects.requireNonNull(payload[1], "Description cannot be null");
         String productPrice = Objects.requireNonNull(payload[2], "Price cannot be null");
-        String supplierId = Objects.requireNonNull(payload[3], "Supplier Id cannot be null");
+        String supplierId = Objects.requireNonNull(payload[3], "SupplierCli Id cannot be null");
         Product newProduct = new Product(productName, productDescription, Float.parseFloat(productPrice), supplierId);
 
         try {
@@ -224,10 +226,9 @@ public class VendingMachineRunnable implements Runnable {
         });
     }
 
-    private String serializeJson(Supplier payload) {
+    private String serializeJson(User payload) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.excludeFieldsWithoutExposeAnnotation().create();
-        String json = gson.toJson(payload, new TypeToken<Supplier>(){}.getType());
-        return json;
+        return  gson.toJson(payload, new TypeToken<User>(){}.getType());
     }
 }

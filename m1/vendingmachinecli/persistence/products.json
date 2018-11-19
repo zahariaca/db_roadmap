@@ -21,10 +21,10 @@
     "supplierId": "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05"
   },
   {
-    "name": "Lays",
-    "description": "Potato chips, decent",
-    "price": 4.33,
-    "uniqueId": 1004,
-    "supplierId": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+    "name": "Pomelo",
+    "description": "Oversized orange",
+    "price": 90.6,
+    "uniqueId": 1005,
+    "supplierId": "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05"
   }
 ]

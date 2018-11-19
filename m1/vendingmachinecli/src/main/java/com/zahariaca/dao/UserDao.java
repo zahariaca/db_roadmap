@@ -1,6 +1,7 @@
 package com.zahariaca.dao;
 
-import com.zahariaca.users.Supplier;
+import com.zahariaca.cli.SupplierCli;
+import com.zahariaca.users.User;
 
 import java.util.Optional;
 import java.util.Set;
@@ -8,35 +9,35 @@ import java.util.Set;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018
  */
-public class UserDao implements Dao<Supplier, String> {
-    private Set<Supplier> suppliers;
+public class UserDao implements Dao<User, String> {
+    private Set<User> users;
 
-    public UserDao(Set<Supplier> suppliers) {
-        this.suppliers = suppliers;
+    public UserDao(Set<User> users) {
+        this.users = users;
     }
 
     @Override
-    public Optional<Supplier> get(String id) {
-        return suppliers.stream().filter(u -> u.getUsername().equals(id)).findAny();
+    public Optional<User> get(String id) {
+        return users.stream().filter(u -> u.getUsername().equals(id)).findAny();
     }
 
     @Override
-    public Set<Supplier> getAll() {
-        return suppliers;
+    public Set<User> getAll() {
+        return users;
     }
 
     @Override
-    public void save(Supplier user) {
+    public void save(User user) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void update(Supplier user, String[] params) {
+    public void update(User user, String[] params) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void delete(Supplier user) {
+    public void delete(User user) {
         throw new UnsupportedOperationException();
     }
 }

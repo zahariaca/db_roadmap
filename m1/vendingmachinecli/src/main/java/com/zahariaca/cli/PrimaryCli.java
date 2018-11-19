@@ -1,13 +1,12 @@
-package com.zahariaca.threads;
+package com.zahariaca.cli;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.zahariaca.threads.CliRunnable;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.users.Customer;
-import com.zahariaca.users.Supplier;
 import com.zahariaca.users.User;
 import com.zahariaca.utils.UserInputUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -19,29 +18,24 @@ import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 30.10.2018
+ * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 19.11.2018
  */
-public class CLIRunnable implements Runnable {
-    private final Logger logger = LogManager.getLogger(CLIRunnable.class);
-    private final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
-    private final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
-    private User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> user;
+public class PrimaryCli implements Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> {
+    private final Logger logger = LogManager.getLogger(CliRunnable.class);
+    private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
+    private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
+    private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> cli;
     private Scanner scanner;
     private volatile boolean continueCondition = true;
 
-    public CLIRunnable(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue, BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
+    public PrimaryCli(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
+                      BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
         this.commandQueue = commandQueue;
         this.resultQueue = resultQueue;
-        logger.log(Level.INFO, ">O: instantiated");
     }
-
 
     @Override
-    public void run() {
-        promptForUserIdentification();
-    }
-
-    private void promptForUserIdentification() {
+    public void promptUserOptions() {
         scanner = new Scanner(System.in);
 
         try {
@@ -51,8 +45,8 @@ public class CLIRunnable implements Runnable {
                         String.format(
                                 UserInputUtils.INSTANCE.constructPromptMessage(
                                         "%nSelect an operation:%n",
-                                        "   [1] Login as Customer. %n",
-                                        "   [2] Login as Supplier. %n",
+                                        "   [1] Login as CustomerCli. %n",
+                                        "   [2] Login as SupplierCli. %n",
                                         "   [q/quit] to end process. %n")));
 
                 String userInput = scanner.nextLine();
@@ -76,8 +70,18 @@ public class CLIRunnable implements Runnable {
         }
     }
 
+    @Override
+    public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
+        this.commandQueue = commandQueue;
+    }
+
+    @Override
+    public void setResultQueue(BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
+        this.resultQueue = resultQueue;
+    }
+
     private void handleShutdown() throws InterruptedException {
-        addEventToCommandQueue(OperationType.QUIT,  new String[]{""});
+        addEventToCommandQueue(OperationType.QUIT, new String[]{""});
         logger.log(Level.INFO, ">O: quit command caught. Initiating application shutdown");
         continueCondition = false;
     }
@@ -92,10 +96,11 @@ public class CLIRunnable implements Runnable {
     }
 
     private void handleCustomer() {
-        user = new Customer();
-        user.setCommandQueue(commandQueue);
-        user.setResultQueue(resultQueue);
-        user.promptUserOptions();
+        User customer = new User();
+        cli = new CustomerCli(customer);
+        cli.setCommandQueue(commandQueue);
+        cli.setResultQueue(resultQueue);
+        cli.promptUserOptions();
     }
 
 
@@ -117,20 +122,21 @@ public class CLIRunnable implements Runnable {
         OperationsEvent<ResultOperationType, String> userResult = resultQueue.take();
 
         if (userResult.getType().equals(ResultOperationType.SUCCESS)) {
-            user = deserializeJson(userResult.getPayload());
-            user.setCommandQueue(commandQueue);
-            user.setResultQueue(resultQueue);
-            user.promptUserOptions();
+            User user = deserializeJson(userResult.getPayload());
+            cli = new SupplierCli(user);
+            cli.setCommandQueue(commandQueue);
+            cli.setResultQueue(resultQueue);
+            cli.promptUserOptions();
         } else if (userResult.getType().equals(ResultOperationType.LOGIN_ERROR)) {
             System.out.println("Incorrect credentials, try again!");
             logger.log(Level.ERROR, ">O: Incorrect credentials, try again!");
         }
     }
 
-    private Supplier deserializeJson(String payload) {
+    private User deserializeJson(String payload) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        return gson.fromJson(payload, new TypeToken<Supplier>() {
+        return gson.fromJson(payload, new TypeToken<User>() {
         }.getType());
     }
 

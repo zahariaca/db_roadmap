@@ -1,10 +1,10 @@
-package com.zahariaca.users;
+package com.zahariaca.cli;
 
 import com.zahariaca.exceptions.UserInUnsafeStateException;
-import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
+import com.zahariaca.users.User;
 import com.zahariaca.utils.UserInputUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -16,12 +16,16 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class Customer implements User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> {
-
-    private Logger logger = LogManager.getLogger(Customer.class);
+public class CustomerCli implements Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> {
+    private Logger logger = LogManager.getLogger(CustomerCli.class);
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue = null;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue = null;
     private Scanner scanner;
+    private User user;
+
+    public CustomerCli(User customer) {
+        user = customer;
+    }
 
     @Override
     public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
@@ -77,9 +81,7 @@ public class Customer implements User<BlockingQueue<OperationsEvent<OperationTyp
         }
     }
 
-
-    @Override
-    public boolean handleUserInput(String userInput) {
+    private boolean handleUserInput(String userInput) {
         try {
             if (Integer.valueOf(userInput) == 1) {
                 sendDisplayEvent();

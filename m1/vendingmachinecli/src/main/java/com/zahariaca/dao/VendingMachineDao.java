@@ -51,7 +51,7 @@ public class VendingMachineDao implements Dao<Product, Integer> {
                 "Product Unique ID cannot be null");
         String supplierID = Objects.requireNonNull(
                 params[4],
-                "Supplier Id cannot be null");
+                "SupplierCli Id cannot be null");
 
         save(new Product(productName, productDescription, Float.valueOf(productPrice), Integer.valueOf(productId), supplierID));
     }

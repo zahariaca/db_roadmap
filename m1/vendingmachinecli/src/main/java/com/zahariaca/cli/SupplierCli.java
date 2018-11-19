@@ -1,11 +1,11 @@
-package com.zahariaca.users;
+package com.zahariaca.cli;
 
 import com.google.gson.annotations.Expose;
 import com.zahariaca.exceptions.UserInUnsafeStateException;
-import com.zahariaca.pojo.Product;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
+import com.zahariaca.users.User;
 import com.zahariaca.utils.UserInputUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Level;
@@ -18,35 +18,16 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
-public class Supplier implements User<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>>, Comparable<Supplier> {
-    @Expose(serialize = false)
-    private final Logger logger = LogManager.getLogger(Supplier.class);
-
-    //TODO: username assumed unique, no mechanism to add users, if added unique username must be guarded for
-    @Expose
-    private String username;
-    @Expose
-    private String userPassword;
-    @Expose
-    private String userId;
-    // isSupplier has no usage for now.
-    @Expose
-    private boolean isSupplier;
-
-    @Expose(serialize = false)
+public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>, BlockingQueue<OperationsEvent<ResultOperationType, String>>> {
+    private final Logger logger = LogManager.getLogger(SupplierCli.class);
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue = null;
-    @Expose(serialize = false)
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue = null;
-    @Expose(serialize = false)
     private Scanner scanner;
-    @Expose(serialize = false)
     private volatile boolean continueCondition = true;
+    private User user;
 
-    public Supplier(String username, String userPassword, boolean isSupplier) {
-        this.username = username;
-        this.userPassword = DigestUtils.sha256Hex(userPassword);
-        this.userId = DigestUtils.sha256Hex(username);
-        this.isSupplier = isSupplier;
+    public SupplierCli(User user) {
+        this.user = user;
     }
 
     @Override
@@ -105,9 +86,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
         }
     }
 
-
-    @Override
-    public boolean handleUserInput(String userInput) {
+    private boolean handleUserInput(String userInput) {
         try {
             if (Integer.valueOf(userInput) == 1) {
                 sendDisplayEvent();
@@ -130,7 +109,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
     }
 
     private void sendDisplayEvent() throws InterruptedException {
-        addEventToCommandQueue(OperationType.DISPLAY, new String[]{getUserId()});
+        addEventToCommandQueue(OperationType.DISPLAY, new String[]{user.getUserId()});
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
         resultQueue.take();
     }
@@ -168,7 +147,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
             productPrice = scanner.nextLine();
         }
 
-        return new String[]{productName, productDescription, productPrice, getUserId()};
+        return new String[]{productName, productDescription, productPrice, user.getUserId()};
     }
 
     private void handleDeleteProduct() throws InterruptedException {
@@ -191,7 +170,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
         System.out.println("Unique ID of the product that should be deleted: ");
         productUniqueId = scanner.nextLine();
 
-        return new String[]{productUniqueId};
+        return new String[]{productUniqueId, user.getUserId()};
 
     }
 
@@ -245,7 +224,7 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
             }
         }
 
-        userId = getUserId().isEmpty() ? null : getUserId();
+        userId = user.getUserId().isEmpty() ? null : user.getUserId();
 
         return new String[]{productName, productDescription, productPrice, productUniqueId, userId};
     }
@@ -262,26 +241,5 @@ public class Supplier implements User<BlockingQueue<OperationsEvent<OperationTyp
                 return userOrder;
             }
         });
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getUserPassword() {
-        return userPassword;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public boolean isSupplier() {
-        return isSupplier;
-    }
-
-    @Override
-    public int compareTo(Supplier o) {
-        return this.getUserId().compareTo(o.getUserId());
     }
 }

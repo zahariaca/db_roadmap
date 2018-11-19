@@ -3,8 +3,9 @@ package com.zahariaca.filehandlers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.zahariaca.cli.SupplierCli;
 import com.zahariaca.pojo.Product;
-import com.zahariaca.users.Supplier;
+import com.zahariaca.users.User;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,7 +50,7 @@ public enum PersistenceFileLoader {
         return Collections.emptySet();
     }
 
-    public Set<Supplier> loadFromFile(File file, TypeToken token) {
+    public Set<User> loadFromFile(File file, TypeToken token) {
         logger.log(Level.DEBUG, "Reading from file: {}", file.getAbsolutePath());
 
         GsonBuilder builder = new GsonBuilder();
@@ -58,7 +59,7 @@ public enum PersistenceFileLoader {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             Type hashSetType = token.getType();
 
-            Set<Supplier> deserializedSet = gson.fromJson(bufferedReader, hashSetType);
+            Set<User> deserializedSet = gson.fromJson(bufferedReader, hashSetType);
 
             logger.log(Level.DEBUG, "Deserialization successful, returning set.");
             if (deserializedSet != null) {
