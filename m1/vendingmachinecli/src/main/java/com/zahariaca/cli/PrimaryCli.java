@@ -45,8 +45,8 @@ public class PrimaryCli implements Cli<BlockingQueue<OperationsEvent<OperationTy
                         String.format(
                                 UserInputUtils.INSTANCE.constructPromptMessage(
                                         "%nSelect an operation:%n",
-                                        "   [1] Login as CustomerCli. %n",
-                                        "   [2] Login as SupplierCli. %n",
+                                        "   [1] Login as Customer. %n",
+                                        "   [2] Login as Supplier. %n",
                                         "   [q/quit] to end process. %n")));
 
                 String userInput = scanner.nextLine();

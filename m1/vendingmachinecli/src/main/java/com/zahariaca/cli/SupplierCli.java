@@ -91,10 +91,8 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
             } else if (Integer.valueOf(userInput) == 2) {
                 handleAddOption();
             } else if (Integer.valueOf(userInput) == 3) {
-                sendDisplayEvent();
                 handleDeleteProduct();
             } else if (Integer.valueOf(userInput) == 4) {
-                sendDisplayEvent();
                 handleChangeProduct();
             }
         } catch (InterruptedException ie) {

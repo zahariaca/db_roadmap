@@ -159,6 +159,7 @@ public class VendingMachineRunnable implements Runnable {
         addEventToTransactionsQueue(TransactionWriterOperationType.QUIT, null);
     }
 
+    //TODO: REFACTOR HARDCODED values
     private void handleFinalOperation() {
         try {
             File productsFile = FileUtils.INSTANCE.getFile("persistence/products.json");

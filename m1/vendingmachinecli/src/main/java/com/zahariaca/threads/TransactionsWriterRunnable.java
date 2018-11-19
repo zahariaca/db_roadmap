@@ -30,10 +30,12 @@ import java.util.concurrent.BlockingQueue;
 public class TransactionsWriterRunnable implements Runnable {
     private final Logger logger = LogManager.getLogger(TransactionsWriterRunnable.class);
     private final BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue;
+    private final File file;
     private volatile boolean continueCondition = true;
 
-    public TransactionsWriterRunnable(BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue) {
+    public TransactionsWriterRunnable(BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue, File file) {
         this.transactionsQueue = transactionsQueue;
+        this.file = file;
     }
 
     @Override
@@ -73,8 +75,6 @@ public class TransactionsWriterRunnable implements Runnable {
     }
 
     private void handleFileWrite(String transactionString) {
-        File file = FileUtils.INSTANCE.getFile("persistence/transactions.json");
-
         Path path = Paths.get(file.toURI());
         try {
             String transactionLine = transactionString + System.lineSeparator();
@@ -84,6 +84,4 @@ public class TransactionsWriterRunnable implements Runnable {
             logger.log(Level.DEBUG, "Could not write: {}", transactionString);
         }
     }
-
-
 }

@@ -1,10 +1,10 @@
 package com.zahariaca.cli;
 
 import com.zahariaca.pojo.Product;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.pojo.users.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,7 +76,18 @@ class SupplierCliTest {
 
     @Test
     void testAddOption() throws InterruptedException {
-        Thread t = new Thread(getAddRunnable());
+        Thread t = new Thread(() -> {
+            String dummySystemIn = String.format("%s%n%s%n%s%n%s%n%s%n",
+                    "2",
+                    "NewProduct",
+                    "New product description",
+                    "5.67",
+                    "q");
+            System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
+            supplierCli.promptUserOptions();
+
+            whenSuccess();
+        });
         t.start();
         // TODO: shouldn't use sleep... FIXME when time permits...
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
@@ -90,10 +101,35 @@ class SupplierCliTest {
 
     }
 
-    private Runnable getAddRunnable() {
-        return () -> {
-            String dummySystemIn = String.format("%s%n%s%n%s%n%s%n%s%n",
-                    "2",
+    @Test
+    void testDeleteOption() throws InterruptedException {
+        Thread t = new Thread(() -> {
+            String dummySystemIn = String.format("%s%n%s%n%s%n",
+                    "3",
+                    "1001",
+                    "q");
+            System.setIn(new ByteArrayInputStream(dummySystemIn.getBytes()));
+            supplierCli.promptUserOptions();
+
+            whenSuccess();
+        });
+        t.start();
+        // TODO: shouldn't use sleep... FIXME when time permits...
+        Thread.sleep(1000);
+        OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
+        assertEquals(commandEvent.getType(), OperationType.DELETE);
+        assertEquals(commandEvent.getPayload()[0], "1001");
+        assertEquals(commandEvent.getPayload()[1], supplier.getUserId());
+        verify(resultQueue, times(1)).take();
+
+    }
+
+    @Test
+    void testChangeOption() throws InterruptedException {
+        Thread t = new Thread(() -> {
+            String dummySystemIn = String.format("%s%n%s%n%s%n%s%n%s%n%s%n",
+                    "4",
+                    "1001",
                     "NewProduct",
                     "New product description",
                     "5.67",
@@ -102,7 +138,20 @@ class SupplierCliTest {
             supplierCli.promptUserOptions();
 
             whenSuccess();
-        };
+        });
+        t.start();
+
+        // TODO: shouldn't use sleep... FIXME when time permits...
+        OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
+        assertEquals(commandEvent.getType(), OperationType.CHANGE_PRODUCT);
+        assertEquals(commandEvent.getPayload()[0], "NewProduct");
+        assertEquals(commandEvent.getPayload()[1], "New product description");
+        assertEquals(commandEvent.getPayload()[2], "5.67");
+        assertEquals(commandEvent.getPayload()[3], "1001");
+        assertEquals(commandEvent.getPayload()[4], supplierOneUUID);
+        Thread.sleep(1000);
+        verify(resultQueue, times(1)).take();
+
     }
 
     private void whenSuccess() {

@@ -56,31 +56,27 @@ public class Main {
 
         Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
         Dao<Product, Integer> vendingMachineDao = new VendingMachineDao(loadedProducts);
-
         OperatorInteractions<Product, String[]> vendingMachine = new VendingMachineInteractions(vendingMachineDao);
 
         File usersFile = FileUtils.INSTANCE.getFile("persistence/users.json");
         Set<User> loadedUsers = PersistenceFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<User>>(){});
-
-        // TODO: Delete this temporary code
-        if (loadedUsers.isEmpty()) {
-            loadedUsers = new TreeSet<User>();
-            loadedUsers.add(new User("admin", "admin", true));
-            loadedUsers.add(new User("azaharia", "password", true));
-        }
-
         Dao<User, String> usersDao = new UserDao(loadedUsers);
+
+        primaryCli = new PrimaryCli(commandQueue, resultQueue);
+
+        File transactionsFile = FileUtils.INSTANCE.getFile("persistence/transactions.json");
 
         logger.log(Level.INFO, ">O: Prerequisites created...");
 
         new Thread(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, usersDao)).start();
         logger.log(Level.INFO, ">O: VendingMachine thread started.");
 
-        primaryCli = new PrimaryCli(commandQueue, resultQueue);
+
         new Thread(new CliRunnable(primaryCli)).start();
         logger.log(Level.INFO, ">O: CLI thread started.");
 
-        new Thread(new TransactionsWriterRunnable(transactionsQueue)).start();
+
+        new Thread(new TransactionsWriterRunnable(transactionsQueue, transactionsFile)).start();
         logger.log(Level.INFO, ">O: Transactions writer thread started.");
     }
 

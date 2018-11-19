@@ -57,7 +57,7 @@ public class CustomerCli implements Cli<BlockingQueue<OperationsEvent<OperationT
                                     "   [2] Buy product. %n",
                                     "   [q/quit] to end process. %n")));
 
-            String userInput = scanner.next();
+            String userInput = scanner.nextLine();
             if (UserInputUtils.INSTANCE.checkQuitCondition(userInput)) {
                 continueCondition = false;
                 continue;
