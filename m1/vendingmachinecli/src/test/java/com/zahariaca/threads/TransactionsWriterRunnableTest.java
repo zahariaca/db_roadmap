@@ -46,9 +46,10 @@ class TransactionsWriterRunnableTest {
             }
         });
 
+        Thread.sleep(1000);
+
         verify(transactionsQueue, timeout(1)).take();
 
-        Thread.sleep(1000);
         assertFalse(t.isAlive());
     }
 }

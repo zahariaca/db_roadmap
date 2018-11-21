@@ -48,7 +48,6 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
         scanner = new Scanner(System.in);
 
         while (continueCondition) {
-            // TODO show only products related to this supplier, not all (m1 or m2)
             System.out.println(
                     String.format(
                             UserInputUtils.INSTANCE.constructPromptMessage(
@@ -117,8 +116,8 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
         addEventToCommandQueue(OperationType.ADD, newProduct);
 
         System.out.println("Adding product: " + newProduct[0]);
-        OperationsEvent<ResultOperationType, String> result = resultQueue.take();
 
+        OperationsEvent<ResultOperationType, String> result = resultQueue.take();
         if (result.getType().equals(ResultOperationType.SUCCESS)) {
             System.out.println("Successfully added product to VendingMachine!");
         } else if (result.getType().equals(ResultOperationType.ADD_ERROR)) {
@@ -153,9 +152,11 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
 
         System.out.println("Deleting product with ID: " + productToBeDeleted);
 
-        if (resultQueue.take().getType().equals(ResultOperationType.SUCCESS)) {
+
+        OperationsEvent<ResultOperationType, String> result = resultQueue.take();
+        if (result.getType().equals(ResultOperationType.SUCCESS)) {
             System.out.println("Successfully deleted product from VendingMachine!");
-        } else if (resultQueue.take().getType().equals(ResultOperationType.ADD_ERROR)) {
+        } else if (result.getType().equals(ResultOperationType.DELETE_ERROR)) {
             System.out.println("Could not delete product. Try again...");
         }
     }
@@ -175,12 +176,13 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
 
         addEventToCommandQueue(OperationType.CHANGE_PRODUCT, newProduct);
 
-        System.out.println("Adding product: " + newProduct);
+        System.out.println("Changing product: " + newProduct);
 
-        if (resultQueue.take().getType().equals(ResultOperationType.SUCCESS)) {
-            System.out.println("Successfully added product to VendingMachine!");
-        } else if (resultQueue.take().getType().equals(ResultOperationType.ADD_ERROR)) {
-            System.out.println("Could not add product. Try again...");
+        OperationsEvent<ResultOperationType, String> result = resultQueue.take();
+        if (result.getType().equals(ResultOperationType.SUCCESS)) {
+            System.out.println("Successfully changed product to VendingMachine!");
+        } else if (result.equals(ResultOperationType.CHANGE_ERROR)) {
+            System.out.println("Could not change product. Try again...");
         }
     }
 
@@ -212,8 +214,8 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
         currentScan = scanner.nextLine();
         productPrice = currentScan.isEmpty() ? null : currentScan;
 
-        if (productPrice == null || !productPrice.isEmpty()) {
-            while (!UserInputUtils.INSTANCE.checkIsFloat(productPrice)) {
+        if (productPrice != null) {
+            while (productPrice != null && !UserInputUtils.INSTANCE.checkIsFloat(productPrice)) {
                 System.out.println("Incorrect price. Please input a float. (e.g: 5.67)");
                 currentScan = scanner.nextLine();
                 productPrice = currentScan.isEmpty() ? null : currentScan;

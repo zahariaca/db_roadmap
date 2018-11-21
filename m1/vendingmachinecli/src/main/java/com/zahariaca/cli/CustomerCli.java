@@ -1,10 +1,10 @@
 package com.zahariaca.cli;
 
 import com.zahariaca.exceptions.UserInUnsafeStateException;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.pojo.users.User;
 import com.zahariaca.utils.UserInputUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -98,7 +98,6 @@ public class CustomerCli implements Cli<BlockingQueue<OperationsEvent<OperationT
 
     private void sendDisplayEvent() throws InterruptedException {
         addEventToCommandQueue(OperationType.DISPLAY, new String[]{""});
-        System.out.println(Thread.currentThread() + " ++ Display products");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
         resultQueue.take();
     }
@@ -106,7 +105,6 @@ public class CustomerCli implements Cli<BlockingQueue<OperationsEvent<OperationT
     private void handleBuyOption() throws InterruptedException {
         String userOrder = promptForOrder();
         addEventToCommandQueue(OperationType.BUY, new String[]{userOrder});
-        System.out.println(Thread.currentThread() + " ++ Buy product");
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.BUY);
 
         handleResponse();
@@ -114,14 +112,14 @@ public class CustomerCli implements Cli<BlockingQueue<OperationsEvent<OperationT
 
     private String promptForOrder() {
         System.out.println("What would you like to order (name of product): ");
-        return scanner.next();
+        return scanner.nextLine();
     }
 
     private void handleResponse() throws InterruptedException {
         OperationsEvent<ResultOperationType, String> returnedResult = resultQueue.take();
 
         if (returnedResult.getType().equals(ResultOperationType.RETURN_PRODUCT)) {
-            System.out.println(String.format("CLIENT RECEIVED: >>> %s", returnedResult.getPayload()));
+            System.out.println(String.format("Client has received: >>> %n%s%n", returnedResult.getPayload()));
         } else if (returnedResult.getType().equals(ResultOperationType.PRODUCT_NOT_FOUND)) {
             System.out.println("The product you chose does not exist. Please try again.");
         }

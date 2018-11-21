@@ -80,7 +80,6 @@ public class Product implements Comparable<Product> {
         Product product = (Product) o;
 
         if (Float.compare(product.getPrice(), getPrice()) != 0) return false;
-        if (getUniqueId() != product.getUniqueId()) return false;
         if (getName() != null ? !getName().equals(product.getName()) : product.getName() != null) return false;
         if (getDescription() != null ? !getDescription().equals(product.getDescription()) : product.getDescription() != null)
             return false;
@@ -92,7 +91,6 @@ public class Product implements Comparable<Product> {
         int result = getName() != null ? getName().hashCode() : 0;
         result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
         result = 31 * result + (getPrice() != +0.0f ? Float.floatToIntBits(getPrice()) : 0);
-        result = 31 * result + getUniqueId();
         result = 31 * result + (getSupplierId() != null ? getSupplierId().hashCode() : 0);
         return result;
     }

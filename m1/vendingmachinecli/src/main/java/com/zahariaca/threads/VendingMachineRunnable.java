@@ -30,7 +30,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 30.10.2018
  */
 public class VendingMachineRunnable implements Runnable {
-    private static final String EXCEPTION_MESSAGE = ">E: Message: ";
+    private static final String EXCEPTION_MESSAGE = ">E: Message: {}";
     private final Logger logger = LogManager.getLogger(VendingMachineRunnable.class);
     private final OperatorInteractions<Product, String[]> vendingMachine;
     private final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
@@ -91,7 +91,7 @@ public class VendingMachineRunnable implements Runnable {
         if (userOptional.isPresent() && userOptional.get().getUserPassword().equals(password)) {
             addEventToResultQueue(ResultOperationType.SUCCESS, serializeJson(userOptional.get()));
         } else {
-            addEventToResultQueue(ResultOperationType.LOGIN_ERROR, "");
+            addEventToResultQueue(ResultOperationType.LOGIN_ERROR, null);
         }
     }
 

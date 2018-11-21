@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 14.11.2018
  */
+//TODO: fix sleep issue
 class CustomerCliTest {
     private InputStream stdin;
     private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>,
@@ -55,7 +56,6 @@ class CustomerCliTest {
     void testDisplayOption() throws InterruptedException {
         Thread t = new Thread(getDisplayRunnable());
         t.start();
-        // TODO: FIXME when time permits...
         Thread.sleep(1000);
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.DISPLAY);
@@ -67,7 +67,6 @@ class CustomerCliTest {
     void testBuyOption() throws InterruptedException {
         Thread t = new Thread(getBuyRunnable());
         t.start();
-        // TODO: FIXME when time permits...
         Thread.sleep(1000);
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.BUY);

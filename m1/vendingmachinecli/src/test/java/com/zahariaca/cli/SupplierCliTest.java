@@ -5,7 +5,6 @@ import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,13 +15,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 14.11.2018
  */
-//TODO: Split in SupplierCli and SupplierCli
+//TODO: fix sleep issue
 class SupplierCliTest {
     private InputStream stdin;
     private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>,
@@ -51,24 +51,6 @@ class SupplierCliTest {
     }
 
     @Test
-        //TODO: Move to User tests
-    void testCompareToReturnsNonZeroCode() {
-        assertFalse(0 == supplier.compareTo(new User("test", "test", false)));
-    }
-
-    @Test
-        //TODO: Move to User tests
-    void testCompareToReturnsZeroCode() {
-        assertTrue(0 == supplier.compareTo(new User("admin", "admin", true)));
-    }
-
-    @Test
-        //TODO: Move to User tests
-    void testIdIsHashOfUsername() {
-        assertEquals(supplier.getUserId(), (DigestUtils.sha256Hex(supplier.getUsername())));
-    }
-
-    @Test
     void testEmptyQueue() {
         supplierCli = new SupplierCli(supplier);
         assertThrows(RuntimeException.class, () -> supplierCli.promptUserOptions(), "Empty Queues results in RuntimeException");
@@ -89,7 +71,6 @@ class SupplierCliTest {
             whenSuccess();
         });
         t.start();
-        // TODO: shouldn't use sleep... FIXME when time permits...
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.ADD);
         assertEquals(commandEvent.getPayload()[0], "NewProduct");
@@ -114,7 +95,6 @@ class SupplierCliTest {
             whenSuccess();
         });
         t.start();
-        // TODO: shouldn't use sleep... FIXME when time permits...
         Thread.sleep(1000);
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.DELETE);
@@ -141,7 +121,6 @@ class SupplierCliTest {
         });
         t.start();
 
-        // TODO: shouldn't use sleep... FIXME when time permits...
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.CHANGE_PRODUCT);
         assertEquals(commandEvent.getPayload()[0], "NewProduct");

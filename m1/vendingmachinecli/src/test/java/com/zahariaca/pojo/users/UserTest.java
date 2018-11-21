@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.zahariaca.pojo.Product;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +37,22 @@ public class UserTest {
         assertNotEquals(supplierOne.hashCode(), supplietTwo.hashCode());
         assertNotEquals(supplierOne.getUserId(), supplietTwo.getUserId());
     }
+
+    @Test
+    void testCompareToReturnsNonZeroCode() {
+        assertFalse(0 == supplierOne.compareTo(new User("test", "test", false)));
+    }
+
+    @Test
+    void testCompareToReturnsZeroCode() {
+        assertTrue(0 == supplierOne.compareTo(new User("admin", "admin", true)));
+    }
+
+    @Test
+    void testIdIsHashOfUsername() {
+        assertEquals(supplierOne.getUserId(), (DigestUtils.sha256Hex(supplierOne.getUsername())));
+    }
+
 
     @Test
     void testCorrectSerialization() {

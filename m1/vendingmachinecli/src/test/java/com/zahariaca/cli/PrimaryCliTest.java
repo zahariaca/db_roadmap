@@ -20,7 +20,8 @@ import static org.mockito.Mockito.*;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 19.11.2018
  */
-public class PrimaryCliTest {
+//TODO: fix sleep issue
+class PrimaryCliTest {
     private InputStream stdin;
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
@@ -67,7 +68,6 @@ public class PrimaryCliTest {
                 "q",
                 "q")));
         t.start();
-        // TODO: shouldn't use sleep... FIXME when time permits...
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         Assertions.assertEquals(commandEvent.getType(), OperationType.USER_LOGIN);
         Assertions.assertEquals(commandEvent.getPayload()[0], "admin");
@@ -85,7 +85,6 @@ public class PrimaryCliTest {
                 "q",
                 "q")));
         t.start();
-        // TODO: shouldn't use sleep... FIXME when time permits...
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         Assertions.assertEquals(commandEvent.getType(), OperationType.USER_LOGIN);
         Assertions.assertEquals(commandEvent.getPayload()[0], "admin");
