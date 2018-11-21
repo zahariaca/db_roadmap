@@ -44,6 +44,7 @@ public class VendingMachineRunnable implements Runnable {
                                   BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue,
                                   OperatorInteractions<Product, String[]> vendingMachine,
                                   Dao<User, String> usersDao) {
+        Thread.currentThread().setName("VendingMachineThread");
         this.commandQueue = commandQueue;
         this.transactionsQueue = transactionsQueue;
         this.vendingMachine = vendingMachine;
@@ -151,7 +152,7 @@ public class VendingMachineRunnable implements Runnable {
 
     private void handleShutdown() throws InterruptedException {
         handleTransactionQueueShutdown();
-        handleFinalOperation();
+        continueCondition = false;
     }
 
 
@@ -159,43 +160,15 @@ public class VendingMachineRunnable implements Runnable {
         addEventToTransactionsQueue(TransactionWriterOperationType.QUIT, null);
     }
 
-    //TODO: REFACTOR HARDCODED values
-    private void handleFinalOperation() {
-        try {
-            File productsFile = FileUtils.INSTANCE.getFile("persistence/products.json");
-            PersistenceFileWriter.INSTANCE.handleFileWrite(productsFile, vendingMachine.getProductsSet());
-            File usersFile = FileUtils.INSTANCE.getFile("persistence/users.json");
-            PersistenceFileWriter.INSTANCE.handleFileWrite(usersFile, usersDao.getAll());
-            System.out.println("Application terminating gracefully!");
-            System.out.println("Goodbye!");
-            continueCondition = false;
-        } catch (IOException e) {
-            logger.log(Level.ERROR, ">E: Could not write persistence file on shutdown. Message: {} ", e.getMessage());
-            System.out.println("Application terminating without saving products! Error occurred!");
-            System.out.println("Goodbye!");
-            continueCondition = false;
-        }
-    }
-
-
     private void sendProductToClient(String[] payload) throws NoSuchProductException, InterruptedException {
         Product returnedProduct = vendingMachine.buyProduct(payload);
         System.out.println("Delivering your product: " + returnedProduct);
-        // TODO: maybe change this and serialize product...posibly not needed though
         addEventToResultQueue(ResultOperationType.RETURN_PRODUCT, returnedProduct.toString());
         addEventToTransactionsQueue(TransactionWriterOperationType.WRITE, returnedProduct);
     }
 
     private void handleNoProduct() throws InterruptedException {
         addEventToResultQueue(ResultOperationType.PRODUCT_NOT_FOUND, null);
-    }
-
-
-    private Product deserializeJsonProduct(String payload) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        return gson.fromJson(payload, new TypeToken<Product>() {
-        }.getType());
     }
 
     private void addEventToResultQueue(ResultOperationType resultOperationType, String returnedProduct) throws InterruptedException {

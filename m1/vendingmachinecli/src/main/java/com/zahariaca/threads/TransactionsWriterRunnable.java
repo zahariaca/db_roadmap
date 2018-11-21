@@ -33,7 +33,9 @@ public class TransactionsWriterRunnable implements Runnable {
     private final File file;
     private volatile boolean continueCondition = true;
 
-    public TransactionsWriterRunnable(BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue, File file) {
+    public TransactionsWriterRunnable(BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue,
+                                      File file) {
+        Thread.currentThread().setName("TransactionsWriterThread");
         this.transactionsQueue = transactionsQueue;
         this.file = file;
     }

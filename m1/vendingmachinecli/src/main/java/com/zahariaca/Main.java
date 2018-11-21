@@ -1,84 +1,65 @@
 package com.zahariaca;
 
-import com.google.gson.reflect.TypeToken;
-import com.zahariaca.cli.PrimaryCli;
-import com.zahariaca.dao.Dao;
-import com.zahariaca.dao.UserDao;
-import com.zahariaca.pojo.users.User;
-import com.zahariaca.vendingmachine.OperatorInteractions;
-import com.zahariaca.filehandlers.PersistenceFileLoader;
-import com.zahariaca.pojo.Product;
-import com.zahariaca.threads.CliRunnable;
-import com.zahariaca.threads.TransactionsWriterRunnable;
-import com.zahariaca.threads.VendingMachineRunnable;
-import com.zahariaca.threads.events.OperationType;
-import com.zahariaca.threads.events.OperationsEvent;
-import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.threads.events.TransactionWriterOperationType;
-import com.zahariaca.utils.FileUtils;
-import com.zahariaca.dao.VendingMachineDao;
-import com.zahariaca.vendingmachine.VendingMachineInteractions;
+import com.zahariaca.mode.PersistenceMode;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import picocli.CommandLine;
 
-import java.io.File;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import static picocli.CommandLine.*;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
  */
+@Command(footer = "Copyright(c) Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com), 2018",
+        headerHeading = "Usage:%n%n",
+        synopsisHeading = "%n",
+        optionListHeading = "%nOptions:%n",
+        header = "Demo vending machine with persistent data")
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
-    private static final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue = new LinkedBlockingQueue<>(1);
-    private static final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue = new LinkedBlockingQueue<>(1);
-    private static final BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue = new LinkedBlockingQueue<>(10);
-    private static PrimaryCli primaryCli;
+
+    @Option(names = {"-m", "--mode"}, description = "Operation Mode, chose between \"file\" and \"db\" persistence", required = true)
+    private String mode;
+    @Option(names = "-p", defaultValue = "persistence/products.json", description = "Path and name of file where product information is stored. Default: ${DEFAULT-VALUE}")
+    private String productsFileName;
+    @Option(names = "-u", defaultValue = "persistence/users.json", description = "Path and name of file where user information is stored. Default: ${DEFAULT-VALUE}")
+    private String usersFileName;
+    @Option(names = "-t", defaultValue = "persistence/transactions.json", description = "Path and name of file where transaction information is stored. Default: ${DEFAULT-VALUE}")
+    private String transactionsFileName;
+    @Option(names = "-h", description = "Display help/usage.", help = true)
+    boolean help;
 
     public static void main(String[] args) {
-        logger.log(Level.INFO, ">O: Application startup...");
-        // TODO: Maybe do some startup option, option1: cli-file, option2: cli-db, file save locations, etc
-        System.out.println(String.format("%s%n%s%n%s",
-                "+++++++++++++++++++++++++++++",
-                "+    VENDING MACHINE CLI    +",
-                "+++++++++++++++++++++++++++++"));
+        Main main;
 
-        System.out.println("Starting up...");
+        try {
+            main = CommandLine.populateCommand(new Main(), args);
 
-        File productsFile = FileUtils.INSTANCE.getFile("persistence/products.json");
-        Set<Product> loadedProducts = PersistenceFileLoader.INSTANCE.loadProductsFromFile(productsFile);
-        OptionalInt largestIdOptional = loadedProducts.stream().mapToInt(Product::getUniqueId).max();
+            if (main.help) {
+                CommandLine.usage(main, System.out, CommandLine.Help.Ansi.AUTO);
+            }
 
-        Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
-        Dao<Product, Integer> vendingMachineDao = new VendingMachineDao(loadedProducts);
-        OperatorInteractions<Product, String[]> vendingMachine = new VendingMachineInteractions(vendingMachineDao);
+            if (main.mode.equals("file")) {
+                logger.log(Level.INFO, ">O: Application startup...");
+                System.out.println(String.format("%s%n%s%n%s",
+                        "+++++++++++++++++++++++++++++",
+                        "+    VENDING MACHINE CLI    +",
+                        "+++++++++++++++++++++++++++++"));
 
-        File usersFile = FileUtils.INSTANCE.getFile("persistence/users.json");
-        Set<User> loadedUsers = PersistenceFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<User>>(){});
-        Dao<User, String> usersDao = new UserDao(loadedUsers);
+                System.out.println("Starting up...");
 
-        primaryCli = new PrimaryCli(commandQueue, resultQueue);
+                PersistenceMode persistenceMode = new PersistenceMode(main.productsFileName, main.usersFileName, main.transactionsFileName);
+                persistenceMode.startUp();
+            } else {
+                throw new UnsupportedOperationException("DB mode not implemented!");
+            }
+        } catch (MissingParameterException e) {
+            logger.log(Level.DEBUG, e.getMessage());
+            System.err.println(String.format("%s%n", e.getMessage()));
+            CommandLine.usage(new Main(), System.out, CommandLine.Help.Ansi.AUTO);
+            System.exit(-1);
+        }
 
-        File transactionsFile = FileUtils.INSTANCE.getFile("persistence/transactions.json");
-
-        logger.log(Level.INFO, ">O: Prerequisites created...");
-
-        new Thread(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, usersDao)).start();
-        logger.log(Level.INFO, ">O: VendingMachine thread started.");
-
-
-        new Thread(new CliRunnable(primaryCli)).start();
-        logger.log(Level.INFO, ">O: CLI thread started.");
-
-
-        new Thread(new TransactionsWriterRunnable(transactionsQueue, transactionsFile)).start();
-        logger.log(Level.INFO, ">O: Transactions writer thread started.");
     }
-
-
 }
