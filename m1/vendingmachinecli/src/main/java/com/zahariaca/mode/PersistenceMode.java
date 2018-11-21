@@ -1,7 +1,6 @@
 package com.zahariaca.mode;
 
 import com.google.gson.reflect.TypeToken;
-import com.zahariaca.Main;
 import com.zahariaca.cli.PrimaryCli;
 import com.zahariaca.dao.Dao;
 import com.zahariaca.dao.UserDao;

@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018

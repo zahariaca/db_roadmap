@@ -2,10 +2,10 @@ package com.zahariaca.cli;
 
 import com.zahariaca.exceptions.UserInUnsafeStateException;
 import com.zahariaca.pojo.Product;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
-import com.zahariaca.pojo.users.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,13 +24,13 @@ import static org.mockito.Mockito.*;
  */
 //TODO: fix sleep issue
 class CustomerCliTest {
+    private final User user = new User();
     private InputStream stdin;
     private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>,
             BlockingQueue<OperationsEvent<ResultOperationType, String>>> customer;
     private Product sodaProduct;
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
-    private final User user = new User();
 
     @BeforeEach
     void init() {

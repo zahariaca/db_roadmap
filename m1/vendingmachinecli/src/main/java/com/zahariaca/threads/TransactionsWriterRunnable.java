@@ -6,7 +6,6 @@ import com.zahariaca.pojo.Product;
 import com.zahariaca.pojo.ProductTransaction;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.TransactionWriterOperationType;
-import com.zahariaca.utils.FileUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

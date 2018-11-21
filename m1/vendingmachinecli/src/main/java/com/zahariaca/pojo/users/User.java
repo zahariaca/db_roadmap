@@ -22,7 +22,8 @@ public class User implements Comparable<User> {
     @Expose
     boolean isSupplier;
 
-    public User() {}
+    public User() {
+    }
 
     public User(String username, String userPassword, boolean isSupplier) {
         this.username = username;

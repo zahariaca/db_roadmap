@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
  */
 //TODO: fix sleep issue
 class SupplierCliTest {
+    private final User supplier = new User("admin", "admin", true);
     private InputStream stdin;
     private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>,
             BlockingQueue<OperationsEvent<ResultOperationType, String>>> supplierCli;
@@ -31,7 +32,6 @@ class SupplierCliTest {
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
     private String supplierOneUUID;
-    private final User supplier = new User("admin", "admin", true);
 
     @BeforeEach
     void init() {

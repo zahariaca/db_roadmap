@@ -1,7 +1,6 @@
 package com.zahariaca.threads;
 
 import com.zahariaca.pojo.Product;
-import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.TransactionWriterOperationType;
 import com.zahariaca.utils.FileUtils;

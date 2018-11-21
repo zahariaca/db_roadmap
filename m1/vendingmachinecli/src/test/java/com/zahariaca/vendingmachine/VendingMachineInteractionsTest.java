@@ -2,7 +2,6 @@ package com.zahariaca.vendingmachine;
 
 import com.zahariaca.dao.Dao;
 import com.zahariaca.dao.VendingMachineDao;
-import com.zahariaca.dao.VendingMachineDaoTest;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,15 +25,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VendingMachineInteractionsTest {
     public static final String NEW_PRODUCT_NAME = "NewProduct";
+    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+    private final PrintStream originalErr = System.err;
     private Product productOne;
     private Product productTwo;
     private Set<Product> productSet;
     private Dao<Product, Integer> vendingMachineDao;
     private OperatorInteractions<Product, String[]> vendingMachine;
-    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-    private final PrintStream originalOut = System.out;
-    private final PrintStream originalErr = System.err;
     private String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
 
 

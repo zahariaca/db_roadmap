@@ -2,9 +2,6 @@ package com.zahariaca.pojo;
 
 import com.google.gson.annotations.Expose;
 
-import java.time.Instant;
-import java.util.Date;
-
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 03.11.2018
  */

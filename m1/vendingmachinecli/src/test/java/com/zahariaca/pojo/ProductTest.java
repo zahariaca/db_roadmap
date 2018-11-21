@@ -6,9 +6,6 @@ import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,7 +52,8 @@ class ProductTest {
         String data = gson.toJson(productOne);
         System.out.println(data);
 
-        Product deserializedProduct = gson.fromJson(data, new TypeToken<Product>(){}.getType());
+        Product deserializedProduct = gson.fromJson(data, new TypeToken<Product>() {
+        }.getType());
 
         assertEquals(productOne, deserializedProduct);
         assertEquals(productOne.hashCode(), deserializedProduct.hashCode());

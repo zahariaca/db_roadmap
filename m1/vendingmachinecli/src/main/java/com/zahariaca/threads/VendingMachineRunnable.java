@@ -7,21 +7,17 @@ import com.zahariaca.dao.Dao;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
-import com.zahariaca.filehandlers.PersistenceFileWriter;
 import com.zahariaca.pojo.Product;
+import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
 import com.zahariaca.threads.events.TransactionWriterOperationType;
-import com.zahariaca.pojo.users.User;
-import com.zahariaca.utils.FileUtils;
 import com.zahariaca.vendingmachine.OperatorInteractions;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -202,6 +198,7 @@ public class VendingMachineRunnable implements Runnable {
     private String serializeJson(User payload) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.excludeFieldsWithoutExposeAnnotation().create();
-        return  gson.toJson(payload, new TypeToken<User>(){}.getType());
+        return gson.toJson(payload, new TypeToken<User>() {
+        }.getType());
     }
 }

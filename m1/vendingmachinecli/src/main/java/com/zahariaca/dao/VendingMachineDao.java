@@ -2,7 +2,10 @@ package com.zahariaca.dao;
 
 import com.zahariaca.pojo.Product;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018

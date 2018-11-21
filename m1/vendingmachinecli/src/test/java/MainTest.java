@@ -16,7 +16,7 @@ public class MainTest {
 
     @Test
     void expectUnsupportedOperation() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () ->  main.main(new String[] {"--mode", "db"}));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> main.main(new String[]{"--mode", "db"}));
     }
 
 }

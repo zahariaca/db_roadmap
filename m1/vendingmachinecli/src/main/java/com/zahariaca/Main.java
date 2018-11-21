@@ -18,7 +18,8 @@ import static picocli.CommandLine.*;
         header = "Demo vending machine with persistent data")
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
-
+    @Option(names = "-h", description = "Display help/usage.", help = true)
+    boolean help;
     @Option(names = {"-m", "--mode"}, description = "Operation Mode, chose between \"file\" and \"db\" persistence", required = true)
     private String mode;
     @Option(names = "-p", defaultValue = "persistence/products.json", description = "Path and name of file where product information is stored. Default: ${DEFAULT-VALUE}")
@@ -27,8 +28,6 @@ public class Main {
     private String usersFileName;
     @Option(names = "-t", defaultValue = "persistence/transactions.json", description = "Path and name of file where transaction information is stored. Default: ${DEFAULT-VALUE}")
     private String transactionsFileName;
-    @Option(names = "-h", description = "Display help/usage.", help = true)
-    boolean help;
 
     public static void main(String[] args) {
         Main main;

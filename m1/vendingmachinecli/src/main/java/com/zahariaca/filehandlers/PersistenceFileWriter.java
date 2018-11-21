@@ -2,7 +2,6 @@ package com.zahariaca.filehandlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.zahariaca.utils.FileUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
