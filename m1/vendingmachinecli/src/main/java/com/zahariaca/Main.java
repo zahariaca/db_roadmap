@@ -1,6 +1,10 @@
 package com.zahariaca;
 
-import com.zahariaca.mode.PersistenceMode;
+import com.zahariaca.exceptions.IncorrectModeException;
+import com.zahariaca.mode.DatabaseOperations;
+import com.zahariaca.mode.FileOperations;
+import com.zahariaca.mode.OperationMode;
+import com.zahariaca.mode.Operations;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,8 +33,11 @@ public class Main {
     @Option(names = "-t", defaultValue = "persistence/transactions.json", description = "Path and name of file where transaction information is stored. Default: ${DEFAULT-VALUE}")
     private String transactionsFileName;
 
+    //TODO: cli db url, username, password
+
     public static void main(String[] args) {
         Main main;
+        Operations operations;
 
         try {
             main = CommandLine.populateCommand(new Main(), args);
@@ -39,21 +46,27 @@ public class Main {
                 CommandLine.usage(main, System.out, CommandLine.Help.Ansi.AUTO);
             }
 
-            if (main.mode.equals("file")) {
-                logger.log(Level.INFO, ">O: Application startup...");
-                System.out.println(String.format("%s%n%s%n%s",
-                        "+++++++++++++++++++++++++++++",
-                        "+    VENDING MACHINE CLI    +",
-                        "+++++++++++++++++++++++++++++"));
+            logger.log(Level.INFO, ">O: Application startup...");
+            System.out.println(String.format("%s%n%s%n%s",
+                    "+++++++++++++++++++++++++++++",
+                    "+    VENDING MACHINE CLI    +",
+                    "+++++++++++++++++++++++++++++"));
+            System.out.println("Starting up...");
 
-                System.out.println("Starting up...");
-
-                PersistenceMode persistenceMode = new PersistenceMode(main.productsFileName, main.usersFileName, main.transactionsFileName);
-                persistenceMode.startUp();
+            if (OperationMode.FILE.getMode().equals(main.mode)) {
+                logger.log(Level.INFO, ">O: Starting in file persistence mode.");
+                operations = new FileOperations(main.productsFileName, main.usersFileName, main.transactionsFileName);
+                operations.startUp();
+            } else if (OperationMode.DB.getMode().equals(main.mode)) {
+                logger.log(Level.INFO, ">O: Starting in database persistence mode.");
+                // TODO: accept DB url?
+                operations = new DatabaseOperations();
+                operations.startUp();
             } else {
-                throw new UnsupportedOperationException("DB mode not implemented!");
+                throw new IncorrectModeException(String.format("Unknown mode: %s. Please try again...", main.mode));
             }
-        } catch (MissingParameterException e) {
+
+        } catch (MissingParameterException | IncorrectModeException e) {
             logger.log(Level.DEBUG, e.getMessage());
             System.err.println(String.format("%s%n", e.getMessage()));
             CommandLine.usage(new Main(), System.out, CommandLine.Help.Ansi.AUTO);

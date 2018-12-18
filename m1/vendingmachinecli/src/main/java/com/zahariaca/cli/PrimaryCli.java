@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.validation.constraints.NotNull;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 
@@ -28,8 +29,8 @@ public class PrimaryCli implements Cli<BlockingQueue<OperationsEvent<OperationTy
     private Scanner scanner;
     private volatile boolean continueCondition = true;
 
-    public PrimaryCli(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
-                      BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
+    public PrimaryCli(@NotNull BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
+                      @NotNull BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
         this.commandQueue = commandQueue;
         this.resultQueue = resultQueue;
     }
@@ -71,12 +72,12 @@ public class PrimaryCli implements Cli<BlockingQueue<OperationsEvent<OperationTy
     }
 
     @Override
-    public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
+    public void setCommandQueue(@NotNull BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
         this.commandQueue = commandQueue;
     }
 
     @Override
-    public void setResultQueue(BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
+    public void setResultQueue(@NotNull BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
         this.resultQueue = resultQueue;
     }
 

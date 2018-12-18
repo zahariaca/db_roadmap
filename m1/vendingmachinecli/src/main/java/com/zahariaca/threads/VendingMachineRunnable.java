@@ -7,6 +7,7 @@ import com.zahariaca.dao.Dao;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
+import com.zahariaca.mode.OperationMode;
 import com.zahariaca.pojo.Product;
 import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationType;
@@ -18,6 +19,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -33,19 +35,41 @@ public class VendingMachineRunnable implements Runnable {
     private final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
     private final BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue;
     private final Dao<User, String> usersDao;
+    private final OperationMode mode;
     private volatile boolean continueCondition = true;
 
-    public VendingMachineRunnable(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
-                                  BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue,
-                                  BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue,
-                                  OperatorInteractions<Product, String[]> vendingMachine,
-                                  Dao<User, String> usersDao) {
-        Thread.currentThread().setName("VendingMachineThread");
+
+    public static Runnable makeFileVendingMachineRunnable(@NotNull BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
+                                                          @NotNull BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue,
+                                                          @NotNull BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue,
+                                                          @NotNull OperatorInteractions<Product, String[]> vendingMachine,
+                                                          @NotNull Dao<User, String> usersDao) {
+        return new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, usersDao, OperationMode.FILE);
+    }
+
+    public static Runnable makeDatabaseVendingMachineRunnable(@NotNull BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
+                                                              @NotNull BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue,
+                                                              @NotNull OperatorInteractions<Product, String[]> vendingMachine,
+                                                              @NotNull Dao<User, String> usersDao) {
+
+        return new VendingMachineRunnable(commandQueue, resultQueue, null, vendingMachine, usersDao, OperationMode.DB);
+
+    }
+
+    private VendingMachineRunnable(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue,
+                                   BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue,
+                                   BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue,
+                                   OperatorInteractions<Product, String[]> vendingMachine,
+                                   Dao<User, String> usersDao,
+                                   OperationMode mode) {
+        Thread.currentThread().setName("VendingMachineThread: " + mode.getMode());
+        logger.log(Level.DEBUG, "Starting VendingMachineRunnable in: {}", mode.getMode());
         this.commandQueue = commandQueue;
+        this.resultQueue = resultQueue;
         this.transactionsQueue = transactionsQueue;
         this.vendingMachine = vendingMachine;
-        this.resultQueue = resultQueue;
         this.usersDao = usersDao;
+        this.mode = mode;
         logger.log(Level.INFO, ">O: instantiated");
     }
 
@@ -147,7 +171,9 @@ public class VendingMachineRunnable implements Runnable {
     }
 
     private void handleShutdown() throws InterruptedException {
-        handleTransactionQueueShutdown();
+        if(isUsingFilePersistence()) {
+            handleTransactionQueueShutdown();
+        }
         continueCondition = false;
     }
 
@@ -160,7 +186,9 @@ public class VendingMachineRunnable implements Runnable {
         Product returnedProduct = vendingMachine.buyProduct(payload);
         System.out.println("Delivering your product: " + returnedProduct);
         addEventToResultQueue(ResultOperationType.RETURN_PRODUCT, returnedProduct.toString());
-        addEventToTransactionsQueue(TransactionWriterOperationType.WRITE, returnedProduct);
+        if (isUsingFilePersistence()) {
+            addEventToTransactionsQueue(TransactionWriterOperationType.WRITE, returnedProduct);
+        }
     }
 
     private void handleNoProduct() throws InterruptedException {
@@ -200,5 +228,9 @@ public class VendingMachineRunnable implements Runnable {
         Gson gson = builder.excludeFieldsWithoutExposeAnnotation().create();
         return gson.toJson(payload, new TypeToken<User>() {
         }.getType());
+    }
+
+    private boolean isUsingFilePersistence() {
+        return transactionsQueue != null && OperationMode.FILE.equals(mode);
     }
 }

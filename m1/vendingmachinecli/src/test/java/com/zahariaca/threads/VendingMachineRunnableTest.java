@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
  */
 //TODO: fix sleep issue
 class VendingMachineRunnableTest {
-    private VendingMachineRunnable vendingMachineRunnable;
+    private Runnable fileVendingMachineRunnable;
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
     private BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue;
@@ -63,12 +63,12 @@ class VendingMachineRunnableTest {
         productSet.add(product);
         vendingMachineDao = new VendingMachineDao(productSet);
         vendingMachine = spy(new VendingMachineInteractions(vendingMachineDao));
-        vendingMachineRunnable = new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, userDao);
+        fileVendingMachineRunnable = VendingMachineRunnable.makeFileVendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, userDao);
     }
 
     @Test
     void testQuit() throws InterruptedException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -90,7 +90,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testUserLoginSuccess() throws InterruptedException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -115,7 +115,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testUserLoginFail() throws InterruptedException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -140,7 +140,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testDisplay() throws InterruptedException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -167,7 +167,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testDisplayWithArg() throws InterruptedException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -194,7 +194,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testBuy() throws InterruptedException, NoSuchProductException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -226,7 +226,7 @@ class VendingMachineRunnableTest {
     void testAdd() throws InterruptedException, ProductAlreadyExistsException {
         Product newProduct = new Product("New Product", "New Description", 5.66f, supplier.getUserId());
         String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), String.valueOf(newProduct.getPrice()), supplier.getUserId()};
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -251,7 +251,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testAddFail() throws InterruptedException, ProductAlreadyExistsException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -277,7 +277,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testDelete() throws InterruptedException, ProductAlreadyExistsException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -302,7 +302,7 @@ class VendingMachineRunnableTest {
 
     @Test
     void testDeleteFail() throws InterruptedException, ProductAlreadyExistsException {
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -330,7 +330,7 @@ class VendingMachineRunnableTest {
     void testChange() throws InterruptedException {
         Product newProduct = new Product("New Product", "New Description", 5.66f, supplier.getUserId());
         String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), String.valueOf(newProduct.getPrice()), String.valueOf(product.getUniqueId()), supplier.getUserId()};
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {
@@ -357,7 +357,7 @@ class VendingMachineRunnableTest {
     void testChangeFail() throws InterruptedException {
         Product newProduct = new Product("New Product", "New Description", 5.66f, supplier.getUserId());
         String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), "101111", String.valueOf(product.getUniqueId()), "wrong"};
-        Thread t = new Thread(vendingMachineRunnable);
+        Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
         commandQueue.put(new OperationsEvent<OperationType, String[]>() {

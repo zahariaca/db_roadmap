@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.validation.constraints.NotNull;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 
@@ -28,12 +29,12 @@ public class CustomerCli implements Cli<BlockingQueue<OperationsEvent<OperationT
     }
 
     @Override
-    public void setCommandQueue(BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
+    public void setCommandQueue(@NotNull BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue) {
         this.commandQueue = commandQueue;
     }
 
     @Override
-    public void setResultQueue(BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
+    public void setResultQueue(@NotNull BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue) {
         this.resultQueue = resultQueue;
     }
 

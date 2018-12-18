@@ -34,8 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 21.11.2018
  */
-public class PersistenceMode {
-    private final Logger logger = LogManager.getLogger(PersistenceMode.class);
+public class FileOperations implements Operations {
+    private final Logger logger = LogManager.getLogger(FileOperations.class);
     private final BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue = new LinkedBlockingQueue<>(1);
     private final BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue = new LinkedBlockingQueue<>(1);
     private final BlockingQueue<OperationsEvent<TransactionWriterOperationType, Product>> transactionsQueue = new LinkedBlockingQueue<>(10);
@@ -46,12 +46,13 @@ public class PersistenceMode {
     private String usersPath;
     private String transactionsPath;
 
-    public PersistenceMode(String productsPath, String usersPath, String transactionsPath) {
+    public FileOperations(String productsPath, String usersPath, String transactionsPath) {
         this.productsPath = productsPath;
         this.usersPath = usersPath;
         this.transactionsPath = transactionsPath;
     }
 
+    @Override
     public void startUp() {
         File productsFile = FileUtils.INSTANCE.getFile(productsPath);
         Set<Product> loadedProducts = PersistenceFileLoader.INSTANCE.loadProductsFromFile(productsFile);
@@ -74,7 +75,8 @@ public class PersistenceMode {
 
         ExecutorService taskExecutor = Executors.newFixedThreadPool(3);
 
-        taskExecutor.execute(new VendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, usersDao));
+        // TODO: Builder?
+        taskExecutor.execute(VendingMachineRunnable.makeFileVendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, usersDao));
         logger.log(Level.INFO, ">O: VendingMachine thread started.");
 
         taskExecutor.execute(new CliRunnable(primaryCli));
