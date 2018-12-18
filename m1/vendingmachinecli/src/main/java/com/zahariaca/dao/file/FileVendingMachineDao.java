@@ -1,5 +1,6 @@
-package com.zahariaca.dao;
+package com.zahariaca.dao.file;
 
+import com.zahariaca.dao.Dao;
 import com.zahariaca.pojo.Product;
 
 import java.util.Collections;
@@ -10,10 +11,10 @@ import java.util.Set;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018
  */
-public class VendingMachineDao implements Dao<Product, Integer> {
+public class FileVendingMachineDao implements Dao<Product, Integer> {
     private Set<Product> products;
 
-    public VendingMachineDao(Set<Product> products) {
+    public FileVendingMachineDao(Set<Product> products) {
         if (products != null) {
             this.products = products;
         } else {

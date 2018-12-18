@@ -1,5 +1,6 @@
 package com.zahariaca.dao;
 
+import com.zahariaca.dao.file.FileUserDao;
 import com.zahariaca.pojo.users.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 19.11.2018
  */
-public class UserDaoTest {
+public class FileUserDaoTest {
     private Set<User> supplierClis;
     private Dao<User, String> userDao;
     private User supplier;
@@ -26,7 +27,7 @@ public class UserDaoTest {
         supplier = new User("admin", "admin", true);
         supplierClis.add(supplier);
         supplierClis.add(new User("tester", "tester", false));
-        userDao = new UserDao(supplierClis);
+        userDao = new FileUserDao(supplierClis);
     }
 
     @Test

@@ -58,10 +58,10 @@ public class Main {
                 operations = new FileOperations(main.productsFileName, main.usersFileName, main.transactionsFileName);
                 operations.startUp();
             } else if (OperationMode.DB.getMode().equals(main.mode)) {
-                logger.log(Level.INFO, ">O: Starting in database persistence mode.");
-                // TODO: accept DB url?
+                throw new UnsupportedOperationException("DB mode not implemented!");
+/*                logger.log(Level.INFO, ">O: Starting in database persistence mode.");
                 operations = new DatabaseOperations();
-                operations.startUp();
+                operations.startUp();*/
             } else {
                 throw new IncorrectModeException(String.format("Unknown mode: %s. Please try again...", main.mode));
             }

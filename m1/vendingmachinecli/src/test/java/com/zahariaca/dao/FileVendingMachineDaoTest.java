@@ -1,5 +1,6 @@
 package com.zahariaca.dao;
 
+import com.zahariaca.dao.file.FileVendingMachineDao;
 import com.zahariaca.pojo.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 19.11.2018
  */
-public class VendingMachineDaoTest {
+public class FileVendingMachineDaoTest {
     public static final String UPDATED_NAME = "UpdatedName";
     public static final String UPDATED_DESCRIPTION = "UpdatedDescription";
     public static final String PRICE = "6.67";
@@ -25,7 +26,7 @@ public class VendingMachineDaoTest {
     private Product productOne;
     private Product productTwo;
     private Set<Product> productSet;
-    private VendingMachineDao vendingMachineDao;
+    private FileVendingMachineDao fileVendingMachineDao;
     private String supplierTwoUUID = "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05";
 
     @BeforeEach
@@ -37,54 +38,54 @@ public class VendingMachineDaoTest {
         productSet = new TreeSet<>();
         productSet.add(productOne);
         productSet.add(productTwo);
-        vendingMachineDao = new VendingMachineDao(productSet);
+        fileVendingMachineDao = new FileVendingMachineDao(productSet);
     }
 
     @Test
     void testGetById() {
-        assertEquals(productOne, vendingMachineDao.get(productOne.getUniqueId()).get());
+        assertEquals(productOne, fileVendingMachineDao.get(productOne.getUniqueId()).get());
     }
 
     @Test
     void testGetByIdReturnEmptyOptional() {
-        assertEquals(Optional.empty(), vendingMachineDao.get(55555));
+        assertEquals(Optional.empty(), fileVendingMachineDao.get(55555));
     }
 
     @Test
     void testGetAll() {
-        assertEquals(productSet, vendingMachineDao.getAll());
+        assertEquals(productSet, fileVendingMachineDao.getAll());
     }
 
     @Test
     void testGetAllReturnEmptySetWhenInitiatedIncorrectly() {
-        VendingMachineDao emptyVendingMachine = new VendingMachineDao(null);
+        FileVendingMachineDao emptyVendingMachine = new FileVendingMachineDao(null);
         assertEquals(Collections.emptySet(), emptyVendingMachine.getAll());
     }
 
     @Test
     void testSave() {
         Product newProduct = new Product("NewProduct", "ProductDescription", 6.67f, supplierTwoUUID);
-        vendingMachineDao.save(newProduct);
-        assertTrue(vendingMachineDao.getAll().contains(newProduct));
+        fileVendingMachineDao.save(newProduct);
+        assertTrue(fileVendingMachineDao.getAll().contains(newProduct));
     }
 
     @Test
     void testDelete() {
-        vendingMachineDao.delete(productOne);
-        assertFalse(vendingMachineDao.getAll().contains(productOne));
+        fileVendingMachineDao.delete(productOne);
+        assertFalse(fileVendingMachineDao.getAll().contains(productOne));
     }
 
 
     @Test
     void testUpdate() {
-        vendingMachineDao.update(productTwo, new String[]{
+        fileVendingMachineDao.update(productTwo, new String[]{
                 UPDATED_NAME,
                 UPDATED_DESCRIPTION,
                 PRICE,
                 String.valueOf(productTwo.getUniqueId()),
                 supplierTwoUUID});
 
-        Product updateProduct = vendingMachineDao.get(productTwo.getUniqueId()).get();
+        Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
         assertNotEquals(productTwo, updateProduct);
         assertTrue(updateProduct.getName().equals(UPDATED_NAME));
@@ -94,14 +95,14 @@ public class VendingMachineDaoTest {
 
     @Test
     void testUpdateInheritsNameWhenEmptyStringProvided() {
-        vendingMachineDao.update(productTwo, new String[]{
+        fileVendingMachineDao.update(productTwo, new String[]{
                 null,
                 UPDATED_DESCRIPTION,
                 PRICE,
                 String.valueOf(productTwo.getUniqueId()),
                 supplierTwoUUID});
 
-        Product updateProduct = vendingMachineDao.get(productTwo.getUniqueId()).get();
+        Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
         assertNotEquals(productTwo, updateProduct);
         assertTrue(updateProduct.getName().equals(productTwo.getName()));
@@ -111,14 +112,14 @@ public class VendingMachineDaoTest {
 
     @Test
     void testUpdateInheritsDescriptionWhenEmptyStringProvided() {
-        vendingMachineDao.update(productTwo, new String[]{
+        fileVendingMachineDao.update(productTwo, new String[]{
                 UPDATED_NAME,
                 null,
                 PRICE,
                 String.valueOf(productTwo.getUniqueId()),
                 supplierTwoUUID});
 
-        Product updateProduct = vendingMachineDao.get(productTwo.getUniqueId()).get();
+        Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
         assertNotEquals(productTwo, updateProduct);
         assertTrue(updateProduct.getName().equals(UPDATED_NAME));
@@ -128,14 +129,14 @@ public class VendingMachineDaoTest {
 
     @Test
     void testUpdateInheritsPriceWhenEmptyStringProvided() {
-        vendingMachineDao.update(productTwo, new String[]{
+        fileVendingMachineDao.update(productTwo, new String[]{
                 UPDATED_NAME,
                 UPDATED_DESCRIPTION,
                 null,
                 String.valueOf(productTwo.getUniqueId()),
                 supplierTwoUUID});
 
-        Product updateProduct = vendingMachineDao.get(productTwo.getUniqueId()).get();
+        Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
         assertNotEquals(productTwo, updateProduct);
         assertTrue(updateProduct.getName().equals(UPDATED_NAME));
@@ -146,7 +147,7 @@ public class VendingMachineDaoTest {
     @Test
     void testUpdateThrowsNullPointerIfNoProductIdProvided() {
         assertThrows(NullPointerException.class,
-                () -> vendingMachineDao.update(productTwo, new String[]{
+                () -> fileVendingMachineDao.update(productTwo, new String[]{
                         UPDATED_NAME,
                         UPDATED_DESCRIPTION,
                         PRICE,
@@ -157,7 +158,7 @@ public class VendingMachineDaoTest {
     @Test
     void testUpdateThrowsNullPointerIfNoSupplierIdProvided() {
         assertThrows(NullPointerException.class,
-                () -> vendingMachineDao.update(productTwo, new String[]{
+                () -> fileVendingMachineDao.update(productTwo, new String[]{
                         UPDATED_NAME,
                         UPDATED_DESCRIPTION,
                         PRICE,

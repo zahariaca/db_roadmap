@@ -1,5 +1,6 @@
-package com.zahariaca.dao;
+package com.zahariaca.dao.file;
 
+import com.zahariaca.dao.Dao;
 import com.zahariaca.pojo.users.User;
 
 import java.util.Optional;
@@ -8,10 +9,10 @@ import java.util.Set;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018
  */
-public class UserDao implements Dao<User, String> {
+public class FileUserDao implements Dao<User, String> {
     private Set<User> users;
 
-    public UserDao(Set<User> users) {
+    public FileUserDao(Set<User> users) {
         this.users = users;
     }
 

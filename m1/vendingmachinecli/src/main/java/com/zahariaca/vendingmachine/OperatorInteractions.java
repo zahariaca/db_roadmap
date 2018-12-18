@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
+ * @param <T> is the pojo type that is in the interaction, e.g: actual product
+ * @param <K> is the expected parameter used in the interaction, e.g: product id
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 03.11.2018
  */
 public interface OperatorInteractions<T, K> {

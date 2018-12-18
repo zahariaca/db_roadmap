@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.zahariaca.dao.Dao;
-import com.zahariaca.dao.UserDao;
-import com.zahariaca.dao.VendingMachineDao;
+import com.zahariaca.dao.file.FileUserDao;
+import com.zahariaca.dao.file.FileVendingMachineDao;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
 import com.zahariaca.pojo.Product;
@@ -57,11 +57,11 @@ class VendingMachineRunnableTest {
         userSet = new TreeSet<>();
         supplier = new User("admin", "admin", true);
         userSet.add(supplier);
-        userDao = new UserDao(userSet);
+        userDao = new FileUserDao(userSet);
         productSet = new TreeSet<>();
         product = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplier.getUserId());
         productSet.add(product);
-        vendingMachineDao = new VendingMachineDao(productSet);
+        vendingMachineDao = new FileVendingMachineDao(productSet);
         vendingMachine = spy(new VendingMachineInteractions(vendingMachineDao));
         fileVendingMachineRunnable = VendingMachineRunnable.makeFileVendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, userDao);
     }

@@ -1,7 +1,7 @@
 package com.zahariaca.vendingmachine;
 
 import com.zahariaca.dao.Dao;
-import com.zahariaca.dao.VendingMachineDao;
+import com.zahariaca.dao.file.FileVendingMachineDao;
 import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
@@ -46,7 +46,7 @@ class VendingMachineInteractionsTest {
         productSet = new TreeSet<>();
         productSet.add(productOne);
         productSet.add(productTwo);
-        vendingMachineDao = new VendingMachineDao(productSet);
+        vendingMachineDao = new FileVendingMachineDao(productSet);
         vendingMachine = new VendingMachineInteractions(vendingMachineDao);
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));

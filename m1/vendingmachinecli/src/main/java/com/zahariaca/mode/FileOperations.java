@@ -3,8 +3,10 @@ package com.zahariaca.mode;
 import com.google.gson.reflect.TypeToken;
 import com.zahariaca.cli.PrimaryCli;
 import com.zahariaca.dao.Dao;
-import com.zahariaca.dao.UserDao;
-import com.zahariaca.dao.VendingMachineDao;
+import com.zahariaca.dao.DaoFactory;
+import com.zahariaca.dao.file.FileDaoFactory;
+import com.zahariaca.dao.file.FileUserDao;
+import com.zahariaca.dao.file.FileVendingMachineDao;
 import com.zahariaca.filehandlers.PersistenceFileLoader;
 import com.zahariaca.filehandlers.PersistenceFileWriter;
 import com.zahariaca.pojo.Product;
@@ -42,6 +44,8 @@ public class FileOperations implements Operations {
     private PrimaryCli primaryCli;
     private OperatorInteractions<Product, String[]> vendingMachine;
     private Dao<User, String> usersDao;
+    private Dao<Product, Integer> vendingMachineDao;
+
     private String productsPath;
     private String usersPath;
     private String transactionsPath;
@@ -58,15 +62,16 @@ public class FileOperations implements Operations {
         Set<Product> loadedProducts = PersistenceFileLoader.INSTANCE.loadProductsFromFile(productsFile);
         OptionalInt largestIdOptional = loadedProducts.stream().mapToInt(Product::getUniqueId).max();
 
-        Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
-        Dao<Product, Integer> vendingMachineDao = new VendingMachineDao(loadedProducts);
-        vendingMachine = new VendingMachineInteractions(vendingMachineDao);
-
         File usersFile = FileUtils.INSTANCE.getFile(usersPath);
         Set<User> loadedUsers = PersistenceFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<User>>() {
         });
 
-        usersDao = new UserDao(loadedUsers);
+        DaoFactory<Dao<Product, Integer>, Dao<User, String>> daoFactory = DaoFactory.makeFileDaoFactory(loadedProducts, loadedUsers);
+        Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
+        vendingMachineDao = daoFactory.getVendingMachineDao();
+        usersDao = daoFactory.getUserDao();
+
+        vendingMachine = new VendingMachineInteractions(vendingMachineDao);
 
         primaryCli = new PrimaryCli(commandQueue, resultQueue);
 
