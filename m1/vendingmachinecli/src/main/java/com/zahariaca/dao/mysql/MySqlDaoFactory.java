@@ -13,15 +13,15 @@ import java.sql.SQLException;
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.12.2018
  */
 public class MySqlDaoFactory implements DaoFactory {
-    private static final String DBURL= "jdbc:mysql://localhost:3306/cli_login?autoReconnect=true&useSSL=false";
+    private static final String DBURL= "jdbc:mysql://localhost:3306/vendingmachine_m2?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false";
 
     public static Connection createConnection() throws SQLException {
         // TODO: connection pool
         // TODO: get rid of hardcoded url/user/pass
         return DriverManager.getConnection(
                 DBURL,
-                "root",
-                "Mon.2017");
+                "vm_admin",
+                "password");
     }
 
     @Override
