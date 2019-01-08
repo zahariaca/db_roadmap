@@ -5,6 +5,7 @@ import com.zahariaca.pojo.users.User;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018
@@ -24,6 +25,11 @@ public class FileUserDao implements Dao<User, String> {
     @Override
     public Set<User> getAll() {
         return users;
+    }
+
+    @Override
+    public Set<User> getAll(String id) {
+        return users.stream().filter(u -> u.getUserId().equals(id)).collect(Collectors.toSet());
     }
 
     @Override

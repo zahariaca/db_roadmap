@@ -29,7 +29,7 @@ public class Product implements Comparable<Product> {
         this.supplierId = supplierId;
     }
 
-    public Product(String name, String description, float price, int uniqueId, String supplierId) {
+    public Product(int uniqueId, String name, String description, float price, String supplierId) {
         this.name = name;
         this.description = description;
         this.price = price;

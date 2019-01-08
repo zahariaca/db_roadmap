@@ -30,7 +30,7 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
 
     @Override
     public void displayProducts(String[] supplierId) {
-        vendingMachineDao.getAll().stream().filter(product -> product.getSupplierId().equals(supplierId[0])).forEach(product -> System.out.println(product.toString()));
+        vendingMachineDao.getAll(Integer.valueOf(supplierId[0])).forEach(product -> System.out.println(product.toString()));
     }
 
     @Override
@@ -62,23 +62,28 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
     }
 
     @Override
-    public void changeProduct(String[] product) throws NoSuchProductException {
-        int productId = Integer.parseInt(product[3]);
-        String supplierID = product[4];
+    public void changeProduct(String[] productAttributes) throws NoSuchProductException, IllegalProductOperation {
+        int productId = Integer.parseInt(productAttributes[3]);
+        String supplierID = productAttributes[4];
 
-        logger.log(Level.DEBUG, ">O: Changing product with id: {} to: {} from vending machine", productId, product);
-        Optional<Product> productMatch = vendingMachineDao.getAll().stream().filter(p -> productId == p.getUniqueId() && supplierID.equals(p.getSupplierId())).findAny();
+        logger.log(Level.DEBUG, ">O: Changing product with id: {} to: {} from vending machine", productId, productAttributes);
+        Optional<Product> product = vendingMachineDao.get(productId);
 
-        if (productMatch.isPresent()) {
-            vendingMachineDao.update(productMatch.get(), product);
+        if (product.isPresent()) {
+            if (!product.get().getSupplierId().equals(supplierID)) {
+                throw new IllegalProductOperation("Product cannot be modified by other suppliers.");
+            }
+
+            vendingMachineDao.update(product.get(), productAttributes);
             logger.log(Level.DEBUG, ">O: Successfully changed product with id: {}", productId);
         } else {
-            throw new NoSuchProductException(String.format("The product: %s is invalid. No changes are made.", product[3]));
+            throw new NoSuchProductException(String.format("The product: %s is invalid. No changes are made.", productAttributes[3]));
         }
     }
 
     @Override
     public Product buyProduct(String[] productName) throws NoSuchProductException {
+        //TODO: user should be given a list of available products an select one of them, this way this method could receive the product ID and not the name
         logger.log(Level.DEBUG, ">O: Buying product with name: {}", productName[0]);
         Optional<Product> product = vendingMachineDao.getAll().stream().filter(p -> p.getName().equalsIgnoreCase(productName[0])).findAny();
         if (product.isPresent()) {

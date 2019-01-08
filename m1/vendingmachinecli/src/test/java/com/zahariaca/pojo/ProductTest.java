@@ -24,7 +24,7 @@ class ProductTest {
         String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
         String supplierTwoUUID = "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05";
         productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
-        productOneCopy = new Product("Soda", "Sugary refreshing beverage", 5.6f, productOne.getUniqueId(), supplierOneUUID);
+        productOneCopy = new Product(productOne.getUniqueId(), "Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, supplierTwoUUID);
     }
 

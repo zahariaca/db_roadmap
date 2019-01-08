@@ -2,11 +2,13 @@ package com.zahariaca.dao.file;
 
 import com.zahariaca.dao.Dao;
 import com.zahariaca.pojo.Product;
+import com.zahariaca.pojo.users.User;
 
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.11.2018
@@ -33,35 +35,26 @@ public class FileVendingMachineDao implements Dao<Product, Integer> {
     }
 
     @Override
-    public void save(Product t) {
-        products.add(t);
+    public Set<Product> getAll(Integer id) {
+        return products.stream().filter(product -> product.getSupplierId().equals(String.valueOf(id))).collect(Collectors.toSet());
     }
 
     @Override
-    public void update(Product t, String[] params) {
-        delete(t);
-
-        String productName = Objects.requireNonNullElse(
-                params[0],
-                t.getName());
-        String productDescription = Objects.requireNonNullElse(
-                params[1],
-                t.getDescription());
-        String productPrice = Objects.requireNonNullElse(
-                params[2],
-                String.valueOf(t.getPrice()));
-        String productId = Objects.requireNonNull(
-                params[3],
-                "Product Unique ID cannot be null");
-        String supplierID = Objects.requireNonNull(
-                params[4],
-                "SupplierCli Id cannot be null");
-
-        save(new Product(productName, productDescription, Float.valueOf(productPrice), Integer.valueOf(productId), supplierID));
+    public void save(Product product) {
+        products.add(product);
     }
 
     @Override
-    public void delete(Product t) {
-        products.remove(t);
+    public void update(Product product, String[] params) {
+        String[] validatedParams = validateUpdateParams(product, params);
+
+        delete(product);
+
+        save(new Product(Integer.valueOf(validatedParams[0]), validatedParams[1], validatedParams[2], Float.valueOf(validatedParams[3]), validatedParams[4]));
+    }
+
+    @Override
+    public void delete(Product product) {
+        products.remove(product);
     }
 }

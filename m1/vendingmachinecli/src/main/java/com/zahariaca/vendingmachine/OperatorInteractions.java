@@ -21,7 +21,7 @@ public interface OperatorInteractions<T, K> {
 
     void deleteProduct(K uniqueId) throws NoSuchProductException, IllegalProductOperation;
 
-    void changeProduct(K product) throws NoSuchProductException, ProductAlreadyExistsException;
+    void changeProduct(K product) throws NoSuchProductException, ProductAlreadyExistsException, IllegalProductOperation;
 
     T buyProduct(K productName) throws NoSuchProductException;
 

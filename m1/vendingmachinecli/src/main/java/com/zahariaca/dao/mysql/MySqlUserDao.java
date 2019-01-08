@@ -22,6 +22,11 @@ public class MySqlUserDao implements Dao<User, String> {
     }
 
     @Override
+    public Set<User> getAll(String id) {
+        return null;
+    }
+
+    @Override
     public void save(User user) {
         throw new UnsupportedOperationException("DB mode not implemented!");
     }
