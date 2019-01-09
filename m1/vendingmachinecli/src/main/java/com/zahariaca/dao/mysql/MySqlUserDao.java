@@ -24,7 +24,7 @@ public class MySqlUserDao implements Dao<User, String> {
 
     @Override
     public Optional<User> get(String username) {
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM users WHERE username = ?");
             preparedStatement.setString(1, username);
 
@@ -48,7 +48,7 @@ public class MySqlUserDao implements Dao<User, String> {
     @Override
     public Set<User> getAll() {
         Set<User> products = new TreeSet<>();
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM users");
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -71,7 +71,7 @@ public class MySqlUserDao implements Dao<User, String> {
     @Override
     public Set<User> getAll(String username) {
         Set<User> products = new TreeSet<>();
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM users WHERE username = ?");
             preparedStatement.setString(1, username);
 

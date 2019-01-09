@@ -32,7 +32,7 @@ public class MySqlTransactionsDao implements Dao<ProductTransaction, String> {
 
     @Override
     public void save(ProductTransaction productTransaction) {
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO transactions VALUES (?,?,?)");
             preparedStatement.setInt(1, productTransaction.getSupplierId());
             preparedStatement.setInt(2, productTransaction.getProductUniqueId());

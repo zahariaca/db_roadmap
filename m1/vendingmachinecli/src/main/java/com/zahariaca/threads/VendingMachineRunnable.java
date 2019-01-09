@@ -171,7 +171,7 @@ public class VendingMachineRunnable implements Runnable {
     }
 
     private void handleShutdown() throws InterruptedException {
-        if(isUsingFilePersistence()) {
+        if (isUsingFilePersistence()) {
             handleTransactionQueueShutdown();
         }
         continueCondition = false;

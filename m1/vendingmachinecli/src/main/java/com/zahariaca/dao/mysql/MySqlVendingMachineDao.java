@@ -24,7 +24,7 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
 
     @Override
     public Optional<Product> get(Integer id) {
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM products WHERE product_id = ?");
             preparedStatement.setInt(1, id);
 
@@ -48,7 +48,7 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
     @Override
     public Set<Product> getAll() {
         Set<Product> products = new TreeSet<>();
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM products");
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -71,9 +71,9 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
     @Override
     public Set<Product> getAll(Integer id) {
         Set<Product> products = new TreeSet<>();
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM products WHERE supplier_id = ?");
-            preparedStatement.setInt(1,  id);
+            preparedStatement.setInt(1, id);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -94,7 +94,7 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
 
     @Override
     public void save(Product product) {
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO products VALUES (NULL, ?,?,?,?)");
             preparedStatement.setString(1, product.getName());
             preparedStatement.setString(2, product.getDescription());
@@ -111,7 +111,7 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
     public void update(Product product, String[] params) {
         String[] validatedParams = validateUpdateParams(product, params);
 
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("UPDATE products SET name = ?, description = ?, price = ? WHERE product_id = ? AND supplier_id = ?");
             preparedStatement.setString(1, validatedParams[1]);
             preparedStatement.setString(2, validatedParams[2]);
@@ -127,7 +127,7 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
 
     @Override
     public void delete(Product product) {
-        try(Connection conn = MySqlDaoFactory.createConnection()) {
+        try (Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM products WHERE product_id = ? AND supplier_id = ?");
             preparedStatement.setInt(1, product.getUniqueId());
             preparedStatement.setInt(2, product.getSupplierId());
