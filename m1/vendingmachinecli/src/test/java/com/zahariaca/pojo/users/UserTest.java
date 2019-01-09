@@ -14,20 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class UserTest {
     private User supplierOne;
-    private User supplierOneCopy;
     private User supplietTwo;
 
     @BeforeEach
     void init() {
-        supplierOne = new User("admin", "admin", true);
-        supplierOneCopy = new User("admin", "admin", true);
-        supplietTwo = new User("azaharia", "admin", true);
-    }
-
-    @Test
-    void testEquality() {
-        assertEquals(supplierOne, supplierOneCopy);
-        assertEquals(supplierOne.hashCode(), supplierOneCopy.hashCode());
+        supplierOne = new User("admin", DigestUtils.sha256Hex("admin"), true);
+        supplietTwo = new User("azaharia", DigestUtils.sha256Hex("admin"), true);
     }
 
     @Test
@@ -39,17 +31,12 @@ public class UserTest {
 
     @Test
     void testCompareToReturnsNonZeroCode() {
-        assertFalse(0 == supplierOne.compareTo(new User("test", "test", false)));
+        assertFalse(0 == supplierOne.compareTo(new User("test", DigestUtils.sha256Hex("test"), false)));
     }
 
     @Test
-    void testCompareToReturnsZeroCode() {
-        assertTrue(0 == supplierOne.compareTo(new User("admin", "admin", true)));
-    }
-
-    @Test
-    void testIdIsHashOfUsername() {
-        assertEquals(supplierOne.getUserId(), (DigestUtils.sha256Hex(supplierOne.getUsername())));
+    void testCompareToReturnsNonZeroCodeWithSameUsername() {
+        assertTrue(0 != supplierOne.compareTo(new User("admin", DigestUtils.sha256Hex("admin"), true)));
     }
 
 

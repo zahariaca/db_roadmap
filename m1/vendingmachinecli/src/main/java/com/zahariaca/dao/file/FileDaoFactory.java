@@ -28,4 +28,10 @@ public class FileDaoFactory implements DaoFactory {
     public Dao<Product, Integer> getVendingMachineDao() {
         return new FileVendingMachineDao(loadedProducts);
     }
+
+    @Override
+    public Dao getTransactionsDao() {
+        return null;
+    }
+
 }

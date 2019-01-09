@@ -10,6 +10,7 @@ import com.zahariaca.dao.file.FileVendingMachineDao;
 import com.zahariaca.filehandlers.PersistenceFileLoader;
 import com.zahariaca.filehandlers.PersistenceFileWriter;
 import com.zahariaca.pojo.Product;
+import com.zahariaca.pojo.ProductTransaction;
 import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.CliRunnable;
 import com.zahariaca.threads.TransactionsWriterRunnable;
@@ -45,6 +46,7 @@ public class FileOperations implements Operations {
     private OperatorInteractions<Product, String[]> vendingMachine;
     private Dao<User, String> usersDao;
     private Dao<Product, Integer> vendingMachineDao;
+    private Dao transactionsDao;
 
     private String productsPath;
     private String usersPath;
@@ -60,18 +62,21 @@ public class FileOperations implements Operations {
     public void startUp() {
         File productsFile = FileUtils.INSTANCE.getFile(productsPath);
         Set<Product> loadedProducts = PersistenceFileLoader.INSTANCE.loadProductsFromFile(productsFile);
-        OptionalInt largestIdOptional = loadedProducts.stream().mapToInt(Product::getUniqueId).max();
+        OptionalInt largestProductIdOptional = loadedProducts.stream().mapToInt(Product::getUniqueId).max();
 
         File usersFile = FileUtils.INSTANCE.getFile(usersPath);
         Set<User> loadedUsers = PersistenceFileLoader.INSTANCE.loadFromFile(usersFile, new TypeToken<TreeSet<User>>() {
         });
+        OptionalInt largestUserIdOptional = loadedUsers.stream().mapToInt(User::getUserId).max();
 
-        DaoFactory<Dao<Product, Integer>, Dao<User, String>> daoFactory = DaoFactory.makeFileDaoFactory(loadedProducts, loadedUsers);
-        Product.setIdGenerator(new AtomicInteger(largestIdOptional.orElse(1000)));
+        DaoFactory<Dao<Product, Integer>, Dao<User, String>, Dao<ProductTransaction, String>> daoFactory = DaoFactory.makeFileDaoFactory(loadedProducts, loadedUsers);
+        Product.setIdGenerator(new AtomicInteger(largestProductIdOptional.orElse(1000)));
+        User.setIdGenerator(new AtomicInteger(largestUserIdOptional.orElse(1)));
         vendingMachineDao = daoFactory.getVendingMachineDao();
+        transactionsDao = daoFactory.getTransactionsDao();
         usersDao = daoFactory.getUserDao();
 
-        vendingMachine = new VendingMachineInteractions(vendingMachineDao);
+        vendingMachine = new VendingMachineInteractions(vendingMachineDao, transactionsDao);
 
         primaryCli = new PrimaryCli(commandQueue, resultQueue);
 

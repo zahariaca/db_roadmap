@@ -1,14 +1,14 @@
 [
   {
     "username": "admin",
-    "userPassword": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-    "userId": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "userPassword": "admin",
+    "userId": 6,
     "isSupplier": true
   },
   {
     "username": "azaharia",
-    "userPassword": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "userId": "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05",
+    "userPassword": "123456",
+    "userId": 7,
     "isSupplier": false
   }
 ]

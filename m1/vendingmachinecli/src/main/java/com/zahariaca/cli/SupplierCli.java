@@ -105,7 +105,7 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
     }
 
     private void sendDisplayEvent() throws InterruptedException {
-        addEventToCommandQueue(OperationType.DISPLAY, new String[]{user.getUserId()});
+        addEventToCommandQueue(OperationType.DISPLAY, new String[]{String.valueOf(user.getUserId())});
         logger.log(Level.DEBUG, ">E: firing: {}", OperationType.DISPLAY);
         resultQueue.take();
     }
@@ -143,7 +143,7 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
             productPrice = scanner.nextLine();
         }
 
-        return new String[]{productName, productDescription, productPrice, user.getUserId()};
+        return new String[]{productName, productDescription, productPrice, String.valueOf(user.getUserId())};
     }
 
     private void handleDeleteProduct() throws InterruptedException {
@@ -151,7 +151,7 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
 
         addEventToCommandQueue(OperationType.DELETE, productToBeDeleted);
 
-        System.out.println("Deleting product with ID: " + productToBeDeleted);
+        System.out.println("Deleting product with ID: " + productToBeDeleted[0]);
 
 
         OperationsEvent<ResultOperationType, String> result = resultQueue.take();
@@ -168,7 +168,7 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
         System.out.println("Unique ID of the product that should be deleted: ");
         productUniqueId = scanner.nextLine();
 
-        return new String[]{productUniqueId, user.getUserId()};
+        return new String[]{productUniqueId, String.valueOf(user.getUserId())};
 
     }
 
@@ -177,12 +177,12 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
 
         addEventToCommandQueue(OperationType.CHANGE_PRODUCT, newProduct);
 
-        System.out.println("Changing product: " + newProduct);
+        System.out.println("Changing product: " + newProduct[3]);
 
         OperationsEvent<ResultOperationType, String> result = resultQueue.take();
         if (result.getType().equals(ResultOperationType.SUCCESS)) {
             System.out.println("Successfully changed product to VendingMachine!");
-        } else if (result.equals(ResultOperationType.CHANGE_ERROR)) {
+        } else if (result.getType().equals(ResultOperationType.CHANGE_ERROR)) {
             System.out.println("Could not change product. Try again...");
         }
     }
@@ -193,7 +193,7 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
         String productName;
         String productDescription;
         String productPrice;
-        String userId;
+        int userId;
 
         System.out.println("Unique ID of the product that should be changed: ");
         currentScan = scanner.nextLine();
@@ -223,9 +223,9 @@ public class SupplierCli implements Cli<BlockingQueue<OperationsEvent<OperationT
             }
         }
 
-        userId = user.getUserId().isEmpty() ? null : user.getUserId();
+        userId = user.getUserId();
 
-        return new String[]{productName, productDescription, productPrice, productUniqueId, userId};
+        return new String[]{productName, productDescription, productPrice, productUniqueId, String.valueOf(userId)};
     }
 
     private void addEventToCommandQueue(OperationType commandOperation, String[] userOrder) throws InterruptedException {

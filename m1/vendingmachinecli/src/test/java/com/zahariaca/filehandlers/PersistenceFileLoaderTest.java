@@ -22,21 +22,22 @@ class PersistenceFileLoaderTest {
     @BeforeEach
     void init() {
         Product.setIdGenerator(new AtomicInteger(1000));
-        String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
-        String supplierTwoUUID = "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05";
+        int supplierOneUUID = 1;
+        int supplierTwoUUID = 2;
         productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, supplierTwoUUID);
     }
 
     @Test
     void testCorrectLoading() {
-        String fileUrl = "src\\test\\resources\\test-products.json";
+        String fileUrl = "src/test/resources/test-products.json";
         File file = null;
-        if (fileUrl != null) {
-            file = new File(fileUrl);
-        } else {
+        file = new File(fileUrl);
+
+        if (!file.exists()) {
             fail("File not found.");
         }
+
 
         Set<Product> testSet = PersistenceFileLoader.INSTANCE.loadProductsFromFile(file);
         assertTrue(!testSet.isEmpty());

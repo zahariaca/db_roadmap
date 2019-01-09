@@ -35,7 +35,7 @@ class PersistenceFileWriterTest {
 
     @Test
     void testHandleFileWrite() throws IOException {
-        File usersFile = FileUtils.INSTANCE.getFile("src\\test\\resources\\test-file-creation.json");
+        File usersFile = FileUtils.INSTANCE.getFile("src/test/resources/test-file-creation.json");
         PersistenceFileWriter.INSTANCE.handleFileWrite(
                 usersFile,
                 suppliers);
@@ -46,7 +46,7 @@ class PersistenceFileWriterTest {
                 .create();
         String data = gson.toJson(suppliers);
 
-        usersFile = FileUtils.INSTANCE.getFile("src\\test\\resources\\test-file-creation.json");
+        usersFile = FileUtils.INSTANCE.getFile("src/test/resources/test-file-creation.json");
 
         byte[] encoded = Files.readAllBytes(Paths.get(usersFile.getPath()));
         String loadedFromFile = new String(encoded, Charset.defaultCharset());

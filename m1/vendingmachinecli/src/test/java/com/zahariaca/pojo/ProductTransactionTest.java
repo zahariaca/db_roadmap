@@ -16,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class ProductTransactionTest {
     private int productId;
-    private float price;
+    private int supplierId;
     private Date date;
 
     @BeforeEach
     void beforeAll() {
         productId = 1002;
-        price = 5.66f;
+        supplierId = 155;
         date = Date.from(Instant.now());
     }
 
@@ -31,12 +31,12 @@ public class ProductTransactionTest {
 
 
         ProductTransaction productTransaction = new ProductTransaction(
+                supplierId,
                 productId,
-                price,
                 date.getTime());
 
         assertEquals(productTransaction.getProductUniqueId(), productId);
-        assertEquals(productTransaction.getPrice(), price);
+        assertEquals(productTransaction.getSupplierId(), supplierId);
         assertEquals(productTransaction.getDate(), date.getTime());
     }
 
@@ -49,7 +49,7 @@ public class ProductTransactionTest {
 
         ProductTransaction productTransaction = new ProductTransaction(
                 productId,
-                price,
+                supplierId,
                 date.getTime());
 
         String data = gson.toJson(productTransaction);
@@ -58,7 +58,7 @@ public class ProductTransactionTest {
         }.getType());
 
         assertEquals(deserializedProductTransaction.getProductUniqueId(), productTransaction.getProductUniqueId());
-        assertEquals(deserializedProductTransaction.getPrice(), productTransaction.getPrice());
+        assertEquals(deserializedProductTransaction.getSupplierId(), productTransaction.getSupplierId());
         assertEquals(deserializedProductTransaction.getDate(), productTransaction.getDate());
         assertEquals(deserializedProductTransaction.hashCode(), productTransaction.hashCode());
         assertEquals(productTransaction, deserializedProductTransaction);

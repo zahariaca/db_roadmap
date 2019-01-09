@@ -4,34 +4,41 @@
     "description": "Sugary refreshing beverage",
     "price": 5.6,
     "uniqueId": 1001,
-    "supplierId": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+    "supplierId": 1
   },
   {
     "name": "Chips",
     "description": "Salty pack of thin potatoes",
     "price": 8.0,
     "uniqueId": 1002,
-    "supplierId": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+    "supplierId": 1
   },
   {
     "name": "Milkduds",
     "description": "Delicious heaven bites",
     "price": 12.78,
     "uniqueId": 1003,
-    "supplierId": "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05"
+    "supplierId": 2
   },
   {
     "name": "Pomelo",
     "description": "Oversized orange",
     "price": 90.6,
     "uniqueId": 1005,
-    "supplierId": "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05"
+    "supplierId": 2
   },
   {
     "name": "Ritter Sport",
     "description": "Expensive delicious chocolate",
     "price": 8.88,
     "uniqueId": 1006,
-    "supplierId": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+    "supplierId": 1
+  },
+  {
+    "name": "Aqua",
+    "description": "Square life juice",
+    "price": 1.7,
+    "uniqueId": 1008,
+    "supplierId": 1
   }
 ]

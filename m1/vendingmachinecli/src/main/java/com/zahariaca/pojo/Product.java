@@ -2,6 +2,7 @@ package com.zahariaca.pojo;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -19,9 +20,9 @@ public class Product implements Comparable<Product> {
     @Expose
     private int uniqueId;
     @Expose
-    private String supplierId;
+    private int supplierId;
 
-    public Product(String name, String description, float price, String supplierId) {
+    public Product(String name, String description, float price, int supplierId) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -29,7 +30,7 @@ public class Product implements Comparable<Product> {
         this.supplierId = supplierId;
     }
 
-    public Product(int uniqueId, String name, String description, float price, String supplierId) {
+    public Product(int uniqueId, String name, String description, float price, int supplierId) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -57,7 +58,7 @@ public class Product implements Comparable<Product> {
         return uniqueId;
     }
 
-    public String getSupplierId() {
+    public int getSupplierId() {
         return supplierId;
     }
 
@@ -75,23 +76,16 @@ public class Product implements Comparable<Product> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Product product = (Product) o;
-
-        if (Float.compare(product.getPrice(), getPrice()) != 0) return false;
-        if (getName() != null ? !getName().equals(product.getName()) : product.getName() != null) return false;
-        if (getDescription() != null ? !getDescription().equals(product.getDescription()) : product.getDescription() != null)
-            return false;
-        return getSupplierId() != null ? getSupplierId().equals(product.getSupplierId()) : product.getSupplierId() == null;
+        return Float.compare(product.price, price) == 0 &&
+                supplierId == product.supplierId &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(description, product.description);
     }
 
     @Override
     public int hashCode() {
-        int result = getName() != null ? getName().hashCode() : 0;
-        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
-        result = 31 * result + (getPrice() != +0.0f ? Float.floatToIntBits(getPrice()) : 0);
-        result = 31 * result + (getSupplierId() != null ? getSupplierId().hashCode() : 0);
-        return result;
+        return Objects.hash(name, description, price, supplierId);
     }
 
     @Override

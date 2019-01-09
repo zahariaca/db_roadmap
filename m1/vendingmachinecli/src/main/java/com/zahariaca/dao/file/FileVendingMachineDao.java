@@ -36,7 +36,7 @@ public class FileVendingMachineDao implements Dao<Product, Integer> {
 
     @Override
     public Set<Product> getAll(Integer id) {
-        return products.stream().filter(product -> product.getSupplierId().equals(String.valueOf(id))).collect(Collectors.toSet());
+        return products.stream().filter(product -> product.getSupplierId() == id).collect(Collectors.toSet());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class FileVendingMachineDao implements Dao<Product, Integer> {
 
         delete(product);
 
-        save(new Product(Integer.valueOf(validatedParams[0]), validatedParams[1], validatedParams[2], Float.valueOf(validatedParams[3]), validatedParams[4]));
+        save(new Product(Integer.valueOf(validatedParams[0]), validatedParams[1], validatedParams[2], Float.valueOf(validatedParams[3]), Integer.valueOf(validatedParams[4])));
     }
 
     @Override

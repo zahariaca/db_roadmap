@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FileUtilsTest {
     @Test
     void testFileIsCreatedOrFound() {
-        File file = FileUtils.INSTANCE.getFile("src\\test\\resources\\test-file-creation.json");
+        File file = FileUtils.INSTANCE.getFile("src/test/resources/test-file-creation.json");
         assertNotNull(file);
         assertTrue(file.exists());
     }

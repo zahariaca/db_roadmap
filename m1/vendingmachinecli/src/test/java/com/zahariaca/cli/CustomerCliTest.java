@@ -37,7 +37,7 @@ class CustomerCliTest {
         stdin = System.in;
 
         customer = new CustomerCli(user);
-        String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+        int supplierOneUUID = 1;
         sodaProduct = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         commandQueue = new LinkedBlockingQueue<>(1);
         BlockingQueue<OperationsEvent<ResultOperationType, String>> realResultQueue = new LinkedBlockingQueue<>(1);

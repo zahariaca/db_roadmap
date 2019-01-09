@@ -29,7 +29,7 @@ public class FileUserDao implements Dao<User, String> {
 
     @Override
     public Set<User> getAll(String id) {
-        return users.stream().filter(u -> u.getUserId().equals(id)).collect(Collectors.toSet());
+        return users.stream().filter(u -> u.getUserId() == Integer.valueOf(id)).collect(Collectors.toSet());
     }
 
     @Override

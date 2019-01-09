@@ -1,9 +1,13 @@
 package com.zahariaca.pojo.users;
 
 import com.google.gson.annotations.Expose;
+import com.zahariaca.pojo.Product;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 28.10.2018
@@ -11,13 +15,15 @@ import org.apache.logging.log4j.Logger;
 public class User implements Comparable<User> {
     @Expose(serialize = false)
     protected final Logger logger = LogManager.getLogger(User.class);
-    //TODO: username assumed unique, no mechanism to add users, if added unique username must be guarded for
+    //TODO: username assumed unique, no mechanism to add users
+    @Expose
+    private static AtomicInteger idGenerator = new AtomicInteger(1);
     @Expose
     String username;
     @Expose
     String userPassword;
     @Expose
-    String userId;
+    int userId;
     // isSupplier has no usage for now.
     @Expose
     boolean isSupplier;
@@ -27,9 +33,21 @@ public class User implements Comparable<User> {
 
     public User(String username, String userPassword, boolean isSupplier) {
         this.username = username;
-        this.userPassword = DigestUtils.sha256Hex(userPassword);
-        this.userId = DigestUtils.sha256Hex(username);
+        this.userPassword = userPassword;
+        this.userId = idGenerator.incrementAndGet();
         this.isSupplier = isSupplier;
+    }
+
+    public User(int userId, String username, String userPassword, boolean isSupplier) {
+        this.userId = userId;
+        this.username = username;
+        this.userPassword = userPassword;
+        this.userId = userId;
+        this.isSupplier = isSupplier;
+    }
+
+    public static void setIdGenerator(AtomicInteger idGenerator) {
+        User.idGenerator = idGenerator;
     }
 
     public String getUsername() {
@@ -40,7 +58,7 @@ public class User implements Comparable<User> {
         return userPassword;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
@@ -48,28 +66,21 @@ public class User implements Comparable<User> {
         return isSupplier;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         User user = (User) o;
-
-        if (isSupplier() != user.isSupplier()) return false;
-        if (getUsername() != null ? !getUsername().equals(user.getUsername()) : user.getUsername() != null)
-            return false;
-        if (getUserPassword() != null ? !getUserPassword().equals(user.getUserPassword()) : user.getUserPassword() != null)
-            return false;
-        return getUserId() != null ? getUserId().equals(user.getUserId()) : user.getUserId() == null;
+        return userId == user.userId &&
+                isSupplier == user.isSupplier &&
+                Objects.equals(username, user.username) &&
+                Objects.equals(userPassword, user.userPassword);
     }
 
     @Override
     public int hashCode() {
-        int result = getUsername() != null ? getUsername().hashCode() : 0;
-        result = 31 * result + (getUserPassword() != null ? getUserPassword().hashCode() : 0);
-        result = 31 * result + (getUserId() != null ? getUserId().hashCode() : 0);
-        result = 31 * result + (isSupplier() ? 1 : 0);
-        return result;
+        return Objects.hash(username, userPassword, userId, isSupplier);
     }
 
     @Override
@@ -84,6 +95,6 @@ public class User implements Comparable<User> {
 
     @Override
     public int compareTo(User o) {
-        return this.getUserId().compareTo(o.getUserId());
+        return Integer.compare(this.getUserId(), o.getUserId());
     }
 }

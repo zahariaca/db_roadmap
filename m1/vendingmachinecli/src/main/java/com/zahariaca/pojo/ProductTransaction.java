@@ -7,15 +7,15 @@ import com.google.gson.annotations.Expose;
  */
 public class ProductTransaction {
     @Expose
-    private final int productUniqueId;
+    private final int supplierId;
     @Expose
-    private final float price;
+    private final int productUniqueId;
     @Expose
     private final long date;
 
-    public ProductTransaction(int productUniqueId, float price, long date) {
+    public ProductTransaction(int supplierId, int productUniqueId, long date) {
+        this.supplierId = supplierId;
         this.productUniqueId = productUniqueId;
-        this.price = price;
         this.date = date;
     }
 
@@ -23,8 +23,8 @@ public class ProductTransaction {
         return productUniqueId;
     }
 
-    public float getPrice() {
-        return price;
+    public int getSupplierId() {
+        return supplierId;
     }
 
     public long getDate() {
@@ -39,14 +39,14 @@ public class ProductTransaction {
         ProductTransaction that = (ProductTransaction) o;
 
         if (getProductUniqueId() != that.getProductUniqueId()) return false;
-        if (Float.compare(that.getPrice(), getPrice()) != 0) return false;
+        if (Integer.compare(that.getSupplierId(), getSupplierId()) != 0) return false;
         return getDate() == that.getDate();
     }
 
     @Override
     public int hashCode() {
         int result = getProductUniqueId();
-        result = 31 * result + (getPrice() != +0.0f ? Float.floatToIntBits(getPrice()) : 0);
+        result = 31 * result + (getSupplierId() != +0.0f ? Float.floatToIntBits(getSupplierId()) : 0);
         result = 31 * result + (int) (getDate() ^ (getDate() >>> 32));
         return result;
     }
@@ -55,7 +55,7 @@ public class ProductTransaction {
     public String toString() {
         return "ProductTransaction{" +
                 "productUniqueId=" + productUniqueId +
-                ", price=" + price +
+                ", price=" + supplierId +
                 ", date=" + date +
                 '}';
     }

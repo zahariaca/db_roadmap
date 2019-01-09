@@ -2,6 +2,7 @@ package com.zahariaca.dao;
 
 import com.zahariaca.dao.file.FileUserDao;
 import com.zahariaca.pojo.users.User;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 19.11.2018
  */
 public class FileUserDaoTest {
+    public static final String USER_PASSWORD_ADMIN = DigestUtils.sha256Hex("admin");
+    public static final String USER_PASSWORD_TESTER = DigestUtils.sha256Hex("tester");
+    public static final String USER_PASSWORD_PASS = DigestUtils.sha256Hex("pass");
     private Set<User> supplierClis;
     private Dao<User, String> userDao;
     private User supplier;
@@ -24,9 +28,9 @@ public class FileUserDaoTest {
     @BeforeEach
     void init() {
         supplierClis = new TreeSet<>();
-        supplier = new User("admin", "admin", true);
+        supplier = new User("admin", USER_PASSWORD_ADMIN, true);
         supplierClis.add(supplier);
-        supplierClis.add(new User("tester", "tester", false));
+        supplierClis.add(new User("tester", USER_PASSWORD_TESTER, false));
         userDao = new FileUserDao(supplierClis);
     }
 
@@ -48,20 +52,20 @@ public class FileUserDaoTest {
     @Test
     void testSaveThrowsException() {
         assertThrows(UnsupportedOperationException.class,
-                () -> userDao.save(new User("new", "pass", true)));
+                () -> userDao.save(new User("new", USER_PASSWORD_PASS, true)));
     }
 
     @Test
     void testUpdateThrowsException() {
         assertThrows(UnsupportedOperationException.class,
                 () -> userDao.update(
-                        new User("new", "pass", true),
+                        new User("new", USER_PASSWORD_PASS, true),
                         new String[]{}));
     }
 
     @Test
     void testDeleteThrowsException() {
         assertThrows(UnsupportedOperationException.class,
-                () -> userDao.delete(new User("new", "pass", true)));
+                () -> userDao.delete(new User("new", USER_PASSWORD_PASS, true)));
     }
 }

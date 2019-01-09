@@ -138,7 +138,7 @@ public class VendingMachineRunnable implements Runnable {
         String productDescription = Objects.requireNonNull(payload[1], "Description cannot be null");
         String productPrice = Objects.requireNonNull(payload[2], "Price cannot be null");
         String supplierId = Objects.requireNonNull(payload[3], "SupplierCli Id cannot be null");
-        Product newProduct = new Product(productName, productDescription, Float.parseFloat(productPrice), supplierId);
+        Product newProduct = new Product(productName, productDescription, Float.parseFloat(productPrice), Integer.valueOf(supplierId));
 
         try {
             vendingMachine.addProduct(newProduct);
@@ -164,7 +164,7 @@ public class VendingMachineRunnable implements Runnable {
         try {
             vendingMachine.changeProduct(payload);
             addEventToResultQueue(ResultOperationType.SUCCESS, null);
-        } catch (NoSuchProductException | ProductAlreadyExistsException e) {
+        } catch (NoSuchProductException | ProductAlreadyExistsException | IllegalProductOperation e) {
             logger.log(Level.ERROR, EXCEPTION_MESSAGE, e.getMessage());
             addEventToResultQueue(ResultOperationType.CHANGE_ERROR, null);
         }

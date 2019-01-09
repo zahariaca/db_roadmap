@@ -55,14 +55,14 @@ class VendingMachineRunnableTest {
         resultQueue = spy(new LinkedBlockingQueue<>(1));
         transactionsQueue = spy(new LinkedBlockingQueue<>(10));
         userSet = new TreeSet<>();
-        supplier = new User("admin", "admin", true);
+        supplier = new User("admin", DigestUtils.sha256Hex("admin"), true);
         userSet.add(supplier);
         userDao = new FileUserDao(userSet);
         productSet = new TreeSet<>();
         product = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplier.getUserId());
         productSet.add(product);
         vendingMachineDao = new FileVendingMachineDao(productSet);
-        vendingMachine = spy(new VendingMachineInteractions(vendingMachineDao));
+        vendingMachine = spy(new VendingMachineInteractions(vendingMachineDao, null));
         fileVendingMachineRunnable = VendingMachineRunnable.makeFileVendingMachineRunnable(commandQueue, resultQueue, transactionsQueue, vendingMachine, userDao);
     }
 
@@ -178,13 +178,13 @@ class VendingMachineRunnableTest {
 
             @Override
             public String[] getPayload() {
-                return new String[]{supplier.getUserId()};
+                return new String[]{String.valueOf(supplier.getUserId())};
             }
         });
 
         Thread.sleep(1000);
 
-        verify(vendingMachine, times(1)).displayProducts(new String[]{supplier.getUserId()});
+        verify(vendingMachine, times(1)).displayProducts(new String[]{String.valueOf(supplier.getUserId())});
 
         ArgumentCaptor<OperationsEvent> argument = ArgumentCaptor.forClass(OperationsEvent.class);
         verify(resultQueue).put(argument.capture());
@@ -224,8 +224,8 @@ class VendingMachineRunnableTest {
 
     @Test
     void testAdd() throws InterruptedException, ProductAlreadyExistsException {
-        Product newProduct = new Product("New Product", "New Description", 5.66f, supplier.getUserId());
-        String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), String.valueOf(newProduct.getPrice()), supplier.getUserId()};
+        Product newProduct = new Product("Add OK", "New Description", 5.66f, supplier.getUserId());
+        String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), String.valueOf(newProduct.getPrice()), String.valueOf(supplier.getUserId())};
         Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
@@ -262,7 +262,7 @@ class VendingMachineRunnableTest {
 
             @Override
             public String[] getPayload() {
-                return new String[]{product.getName(), product.getDescription(), String.valueOf(product.getPrice()), supplier.getUserId()};
+                return new String[]{product.getName(), product.getDescription(), String.valueOf(product.getPrice()), String.valueOf(product.getSupplierId())};
             }
         });
 
@@ -288,7 +288,7 @@ class VendingMachineRunnableTest {
 
             @Override
             public String[] getPayload() {
-                return new String[]{String.valueOf(product.getUniqueId()), supplier.getUserId()};
+                return new String[]{String.valueOf(product.getUniqueId()), String.valueOf(supplier.getUserId())};
             }
         });
 
@@ -328,8 +328,8 @@ class VendingMachineRunnableTest {
 
     @Test
     void testChange() throws InterruptedException {
-        Product newProduct = new Product("New Product", "New Description", 5.66f, supplier.getUserId());
-        String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), String.valueOf(newProduct.getPrice()), String.valueOf(product.getUniqueId()), supplier.getUserId()};
+        Product newProduct = new Product("Change OK", "New Description", 5.66f, supplier.getUserId());
+        String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), String.valueOf(newProduct.getPrice()), String.valueOf(product.getUniqueId()), String.valueOf(supplier.getUserId())};
         Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 
@@ -355,8 +355,8 @@ class VendingMachineRunnableTest {
 
     @Test
     void testChangeFail() throws InterruptedException {
-        Product newProduct = new Product("New Product", "New Description", 5.66f, supplier.getUserId());
-        String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), "101111", String.valueOf(product.getUniqueId()), "wrong"};
+        Product newProduct = new Product("Change Fail", "New Description", 5.66f, supplier.getUserId());
+        String[] payload = new String[]{newProduct.getName(), newProduct.getDescription(), "101111", String.valueOf(product.getUniqueId()), String.valueOf(155)};
         Thread t = new Thread(fileVendingMachineRunnable);
         t.start();
 

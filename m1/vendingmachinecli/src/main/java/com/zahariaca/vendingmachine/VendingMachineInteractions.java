@@ -5,10 +5,14 @@ import com.zahariaca.exceptions.IllegalProductOperation;
 import com.zahariaca.exceptions.NoSuchProductException;
 import com.zahariaca.exceptions.ProductAlreadyExistsException;
 import com.zahariaca.pojo.Product;
+import com.zahariaca.pojo.ProductTransaction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,9 +22,11 @@ import java.util.Set;
 public class VendingMachineInteractions implements OperatorInteractions<Product, String[]> {
     private static final Logger logger = LogManager.getLogger(VendingMachineInteractions.class);
     private Dao<Product, Integer> vendingMachineDao;
+    private Dao<ProductTransaction, String> transactionsDao;
 
-    public VendingMachineInteractions(Dao<Product, Integer> vendingMachineDao) {
+    public VendingMachineInteractions(@NotNull Dao<Product, Integer> vendingMachineDao, Dao<ProductTransaction, String> transactionsDao) {
         this.vendingMachineDao = vendingMachineDao;
+        this.transactionsDao = transactionsDao;
     }
 
     @Override
@@ -30,6 +36,7 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
 
     @Override
     public void displayProducts(String[] supplierId) {
+        System.out.println("AZAHARIA: >>>>> " + supplierId[0]);
         vendingMachineDao.getAll(Integer.valueOf(supplierId[0])).forEach(product -> System.out.println(product.toString()));
     }
 
@@ -50,7 +57,7 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
         Optional<Product> product = vendingMachineDao.get(Integer.valueOf(ids[0]));
 
         if (product.isPresent()) {
-            if (!product.get().getSupplierId().equals(ids[1])) {
+            if (product.get().getSupplierId() != Integer.valueOf(ids[1])) {
                 throw new IllegalProductOperation("Product cannot be modified by other suppliers.");
             }
 
@@ -70,7 +77,7 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
         Optional<Product> product = vendingMachineDao.get(productId);
 
         if (product.isPresent()) {
-            if (!product.get().getSupplierId().equals(supplierID)) {
+            if (product.get().getSupplierId() != Integer.valueOf(supplierID)) {
                 throw new IllegalProductOperation("Product cannot be modified by other suppliers.");
             }
 
@@ -88,9 +95,17 @@ public class VendingMachineInteractions implements OperatorInteractions<Product,
         Optional<Product> product = vendingMachineDao.getAll().stream().filter(p -> p.getName().equalsIgnoreCase(productName[0])).findAny();
         if (product.isPresent()) {
             logger.log(Level.DEBUG, "Successfully bought product, passing to customer.");
-            return product.get();
+            Product boughtProduct = product.get();
+            if (transactionsDao != null) {
+                transactionsDao.save(new ProductTransaction(boughtProduct.getSupplierId(), boughtProduct.getUniqueId(), Date.from(Instant.now()).getTime()));
+            }
+            return boughtProduct;
         }
         throw new NoSuchProductException(String.format("Product: %s does not exist.", productName[0]));
+    }
+
+    private void registerBuyTransaction(int supplierId, int productId) {
+
     }
 
     @Override

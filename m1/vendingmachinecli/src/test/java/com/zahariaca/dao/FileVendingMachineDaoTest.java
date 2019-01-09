@@ -27,12 +27,12 @@ public class FileVendingMachineDaoTest {
     private Product productTwo;
     private Set<Product> productSet;
     private FileVendingMachineDao fileVendingMachineDao;
-    private String supplierTwoUUID = "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05";
+    private int supplierTwoUUID = 1;
 
     @BeforeEach
     void init() {
         Product.setIdGenerator(new AtomicInteger(1000));
-        String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+        int supplierOneUUID = 2;
         productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, supplierTwoUUID);
         productSet = new TreeSet<>();
@@ -83,7 +83,7 @@ public class FileVendingMachineDaoTest {
                 UPDATED_DESCRIPTION,
                 PRICE,
                 String.valueOf(productTwo.getUniqueId()),
-                supplierTwoUUID});
+                String.valueOf(supplierTwoUUID)});
 
         Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
@@ -100,7 +100,7 @@ public class FileVendingMachineDaoTest {
                 UPDATED_DESCRIPTION,
                 PRICE,
                 String.valueOf(productTwo.getUniqueId()),
-                supplierTwoUUID});
+                String.valueOf(supplierTwoUUID)});
 
         Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
@@ -117,7 +117,7 @@ public class FileVendingMachineDaoTest {
                 null,
                 PRICE,
                 String.valueOf(productTwo.getUniqueId()),
-                supplierTwoUUID});
+                String.valueOf(supplierTwoUUID)});
 
         Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
@@ -134,7 +134,7 @@ public class FileVendingMachineDaoTest {
                 UPDATED_DESCRIPTION,
                 null,
                 String.valueOf(productTwo.getUniqueId()),
-                supplierTwoUUID});
+                String.valueOf(supplierTwoUUID)});
 
         Product updateProduct = fileVendingMachineDao.get(productTwo.getUniqueId()).get();
 
@@ -152,7 +152,7 @@ public class FileVendingMachineDaoTest {
                         UPDATED_DESCRIPTION,
                         PRICE,
                         null,
-                        supplierTwoUUID}));
+                        String.valueOf(supplierTwoUUID)}));
     }
 
     @Test

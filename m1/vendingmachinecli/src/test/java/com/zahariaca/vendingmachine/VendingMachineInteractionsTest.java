@@ -34,20 +34,20 @@ class VendingMachineInteractionsTest {
     private Set<Product> productSet;
     private Dao<Product, Integer> vendingMachineDao;
     private OperatorInteractions<Product, String[]> vendingMachine;
-    private String supplierOneUUID = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+    private int supplierOneUUID = 1;
 
 
     @BeforeEach
     void init() {
         Product.setIdGenerator(new AtomicInteger(1000));
-        String supplierTwoUUID = "b1f2aebc61a4ee3ed0c429fe44c259612c2d857abcca0b632530fe70f0950b05";
+        int supplierTwoUUID = 2;
         productOne = new Product("Soda", "Sugary refreshing beverage", 5.6f, supplierOneUUID);
         productTwo = new Product("Chips", "Salty pack of thin potatoes", 8f, supplierTwoUUID);
         productSet = new TreeSet<>();
         productSet.add(productOne);
         productSet.add(productTwo);
         vendingMachineDao = new FileVendingMachineDao(productSet);
-        vendingMachine = new VendingMachineInteractions(vendingMachineDao);
+        vendingMachine = new VendingMachineInteractions(vendingMachineDao, null);
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));
     }
@@ -62,11 +62,11 @@ class VendingMachineInteractionsTest {
 
     @Test
     void testAddProduct() throws ProductAlreadyExistsException {
-        Product newProduct = new Product("NewProduct", "Test product description", 80f, DigestUtils.sha256Hex("TESTING"));
+        Product newProduct = new Product("VMAddProduct", "Test product description", 80f, supplierOneUUID);
         vendingMachine.addProduct(newProduct);
         Product returnedNewProduct = null;
         try {
-            returnedNewProduct = vendingMachine.buyProduct(new String[]{"NewProduct"});
+            returnedNewProduct = vendingMachine.buyProduct(new String[]{"VMAddProduct"});
         } catch (NoSuchProductException e) {
             fail("Adding the product was not successful");
         }
@@ -85,7 +85,7 @@ class VendingMachineInteractionsTest {
         try {
             vendingMachine.deleteProduct(new String[]{
                     String.valueOf(productOne.getUniqueId()),
-                    supplierOneUUID.toString()});
+                    String.valueOf(supplierOneUUID)});
         } catch (NoSuchProductException | IllegalProductOperation e) {
             fail(e.getMessage());
         }
@@ -99,7 +99,7 @@ class VendingMachineInteractionsTest {
         assertThrows(NoSuchProductException.class,
                 () -> vendingMachine.deleteProduct(new String[]{
                         "12345",
-                        productOne.getSupplierId().toString()}));
+                        String.valueOf(productOne.getSupplierId())}));
     }
 
     @Test
@@ -107,7 +107,7 @@ class VendingMachineInteractionsTest {
         assertThrows(IllegalProductOperation.class,
                 () -> vendingMachine.deleteProduct(new String[]{
                         String.valueOf(productOne.getUniqueId()),
-                        productTwo.getSupplierId().toString()}));
+                        String.valueOf(productTwo.getSupplierId())}));
     }
 
     @Test
@@ -115,10 +115,10 @@ class VendingMachineInteractionsTest {
         String newDescription = "New description to be changed";
         String newPrice = "7f";
         int uniqueId = productOne.getUniqueId();
-        String[] changedProduct = new String[]{NEW_PRODUCT_NAME, "New description to be changed", "7f", String.valueOf(productOne.getUniqueId()), productOne.getSupplierId()};
+        String[] changedProduct = new String[]{NEW_PRODUCT_NAME, "New description to be changed", "7f", String.valueOf(productOne.getUniqueId()), String.valueOf(productOne.getSupplierId())};
         try {
             vendingMachine.changeProduct(changedProduct);
-        } catch (NoSuchProductException | ProductAlreadyExistsException e) {
+        } catch (NoSuchProductException | ProductAlreadyExistsException | IllegalProductOperation e) {
             e.printStackTrace();
         }
         Product returnedChangedProduct = null;
@@ -136,24 +136,24 @@ class VendingMachineInteractionsTest {
 
     @Test
     void testChangeProductThrowsWithWrongSupplierIdException() {
-        assertThrows(NoSuchProductException.class,
+        assertThrows(IllegalProductOperation.class,
                 () -> vendingMachine.changeProduct(new String[]{
                         NEW_PRODUCT_NAME,
                         "New description to be changed",
                         "7f",
                         String.valueOf(productOne.getUniqueId()),
-                        productTwo.getSupplierId()}));
+                        String.valueOf(productTwo.getSupplierId())}));
     }
 
     @Test
     void testChangeProductThrowsWithWrongProductIDException() {
-        assertThrows(NoSuchProductException.class,
+        assertThrows(IllegalProductOperation.class,
                 () -> vendingMachine.changeProduct(new String[]{
                         NEW_PRODUCT_NAME,
                         "New description to be changed",
                         "7f",
                         String.valueOf(productTwo.getUniqueId()),
-                        productOne.getSupplierId()}));
+                        String.valueOf(productOne.getSupplierId())}));
     }
 
     @Test

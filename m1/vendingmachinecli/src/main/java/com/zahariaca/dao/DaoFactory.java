@@ -12,7 +12,7 @@ import java.util.Set;
  * @param <K> is the UserDao type
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.12.2018
  */
-public interface DaoFactory<T, K> {
+public interface DaoFactory<T, K, L> {
 
     static DaoFactory makeFileDaoFactory(Set<Product> loadedProducts, Set<User> loadedUsers) {
         return new FileDaoFactory(loadedProducts, loadedUsers);
@@ -29,4 +29,6 @@ public interface DaoFactory<T, K> {
     T getVendingMachineDao();
 
     K getUserDao();
+
+    L getTransactionsDao();
 }

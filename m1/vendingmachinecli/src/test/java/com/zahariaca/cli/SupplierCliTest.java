@@ -5,6 +5,7 @@ import com.zahariaca.pojo.users.User;
 import com.zahariaca.threads.events.OperationType;
 import com.zahariaca.threads.events.OperationsEvent;
 import com.zahariaca.threads.events.ResultOperationType;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -24,14 +26,14 @@ import static org.mockito.Mockito.*;
  */
 //TODO: fix sleep issue
 class SupplierCliTest {
-    private final User supplier = new User("admin", "admin", true);
+    private final User supplier = new User("admin", DigestUtils.sha256Hex("admin"), true);
     private InputStream stdin;
     private Cli<BlockingQueue<OperationsEvent<OperationType, String[]>>,
             BlockingQueue<OperationsEvent<ResultOperationType, String>>> supplierCli;
     private Product sodaProduct;
     private BlockingQueue<OperationsEvent<OperationType, String[]>> commandQueue;
     private BlockingQueue<OperationsEvent<ResultOperationType, String>> resultQueue;
-    private String supplierOneUUID;
+    private int supplierOneUUID;
 
     @BeforeEach
     void init() {
@@ -76,7 +78,7 @@ class SupplierCliTest {
         assertEquals(commandEvent.getPayload()[0], "NewProduct");
         assertEquals(commandEvent.getPayload()[1], "New product description");
         assertEquals(commandEvent.getPayload()[2], "5.67");
-        assertEquals(commandEvent.getPayload()[3], supplierOneUUID);
+        assertTrue(Integer.valueOf(commandEvent.getPayload()[3]) == supplierOneUUID);
         Thread.sleep(1000);
         verify(resultQueue, times(1)).take();
 
@@ -99,7 +101,7 @@ class SupplierCliTest {
         OperationsEvent<OperationType, String[]> commandEvent = commandQueue.take();
         assertEquals(commandEvent.getType(), OperationType.DELETE);
         assertEquals(commandEvent.getPayload()[0], "1001");
-        assertEquals(commandEvent.getPayload()[1], supplier.getUserId());
+        assertTrue(Integer.valueOf(commandEvent.getPayload()[1]) == supplier.getUserId());
         verify(resultQueue, times(1)).take();
 
     }
@@ -127,7 +129,7 @@ class SupplierCliTest {
         assertEquals(commandEvent.getPayload()[1], "New product description");
         assertEquals(commandEvent.getPayload()[2], "5.67");
         assertEquals(commandEvent.getPayload()[3], "1001");
-        assertEquals(commandEvent.getPayload()[4], supplierOneUUID);
+        assertTrue(Integer.valueOf(commandEvent.getPayload()[4]) == supplierOneUUID);
         Thread.sleep(1000);
         verify(resultQueue, times(1)).take();
 

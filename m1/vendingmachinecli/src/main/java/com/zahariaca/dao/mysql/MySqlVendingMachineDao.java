@@ -18,6 +18,7 @@ import java.util.TreeSet;
 /**
  * @author Zaharia Costin-Alexandru (zaharia.c.alexandru@gmail.com) on 18.12.2018
  */
+//TODO: Optimise duplicate code.
 public class MySqlVendingMachineDao implements Dao<Product, Integer> {
     private static final Logger logger = LogManager.getLogger(MySqlVendingMachineDao.class);
 
@@ -30,16 +31,16 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                Product p = new Product(
+                Product product = new Product(
                         resultSet.getInt(1),
                         resultSet.getString(2),
                         resultSet.getString(3),
                         resultSet.getFloat(4),
-                        String.valueOf(resultSet.getInt(5)));
-                return Optional.of(p);
+                        resultSet.getInt(5));
+                return Optional.of(product);
             }
         } catch (SQLException e) {
-            logger.log(Level.ERROR, ">E: method get(): ", e.getMessage());
+            logger.log(Level.ERROR, ">E: method get(): {}", e.getMessage());
         }
         return Optional.empty();
     }
@@ -53,16 +54,16 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                Product p = new Product(
+                Product product = new Product(
                         resultSet.getInt(1),
                         resultSet.getString(2),
                         resultSet.getString(3),
                         resultSet.getFloat(4),
-                        String.valueOf(resultSet.getInt(5)));
-                products.add(p);
+                        resultSet.getInt(5));
+                products.add(product);
             }
         } catch (SQLException e) {
-            logger.log(Level.ERROR, ">E: method getAll(): ", e.getMessage());
+            logger.log(Level.ERROR, ">E: method getAll(): {}", e.getMessage());
         }
         return products.isEmpty() ? Collections.emptySet() : products;
     }
@@ -77,16 +78,16 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                Product p = new Product(
+                Product product = new Product(
                         resultSet.getInt(1),
                         resultSet.getString(2),
                         resultSet.getString(3),
                         resultSet.getFloat(4),
-                        String.valueOf(resultSet.getInt(5)));
-                products.add(p);
+                        resultSet.getInt(5));
+                products.add(product);
             }
         } catch (SQLException e) {
-            logger.log(Level.ERROR, ">E: method getAll(): ", e.getMessage());
+            logger.log(Level.ERROR, ">E: method getAll(): {}", e.getMessage());
         }
         return products.isEmpty() ? Collections.emptySet() : products;
     }
@@ -94,15 +95,15 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
     @Override
     public void save(Product product) {
         try(Connection conn = MySqlDaoFactory.createConnection()) {
-            PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO products VALUES (?,?,?,?)");
+            PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO products VALUES (NULL, ?,?,?,?)");
             preparedStatement.setString(1, product.getName());
             preparedStatement.setString(2, product.getDescription());
             preparedStatement.setFloat(3, product.getPrice());
-            preparedStatement.setInt(4, Integer.valueOf(product.getSupplierId()));
+            preparedStatement.setInt(4, product.getSupplierId());
 
             preparedStatement.execute();
         } catch (SQLException e) {
-            logger.log(Level.ERROR, ">E: method save(...): ", e.getMessage());
+            logger.log(Level.ERROR, ">E: method save(...): {}", e.getMessage());
         }
     }
 
@@ -120,7 +121,7 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
 
             preparedStatement.execute();
         } catch (SQLException e) {
-            logger.log(Level.ERROR, ">E: method update(...): ", e.getMessage());
+            logger.log(Level.ERROR, ">E: method update(...): {}", e.getMessage());
         }
     }
 
@@ -129,11 +130,11 @@ public class MySqlVendingMachineDao implements Dao<Product, Integer> {
         try(Connection conn = MySqlDaoFactory.createConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM products WHERE product_id = ? AND supplier_id = ?");
             preparedStatement.setInt(1, product.getUniqueId());
-            preparedStatement.setInt(2, Integer.valueOf(product.getSupplierId()));
+            preparedStatement.setInt(2, product.getSupplierId());
 
             preparedStatement.execute();
         } catch (SQLException e) {
-            logger.log(Level.ERROR, ">E: method delete(...): ", e.getMessage());
+            logger.log(Level.ERROR, ">E: method delete(...): {}", e.getMessage());
         }
     }
 }
